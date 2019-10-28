@@ -1,6 +1,6 @@
 #import mingus.core.diatonic as diatonic
 import mingus.core.chords as chords
-import mingus.core.notes as notes
+import mingus.core.notes as Notes
 import mingus.core.intervals as intervals
 import mingus.core.scales as scales
 import mingus.core.value as value
@@ -22,10 +22,12 @@ import mido
 
 import mingus.extra.lilypond as LilyPond
 
+import algorithm as Algo
+
 
 n = NoteContainer(chords.triad("C", "C"))
 
-b = Bar("C", (4,4))
+b = Bar(None, (4,4))
 b.place_notes(NoteContainer(chords.triad("C", "C")),8)
 b.place_notes(NoteContainer(chords.triad("C", "C")),8)
 b.place_notes(NoteContainer(chords.triad("A", "C")),4)
@@ -36,26 +38,26 @@ t = Track()
 # print(t)
 t.name = "Teste"
 
-b1 = Bar("C", (4,4))
+b1 = Bar(None, (4,4))
 # b1.place_notes(NoteContainer(chords.triad("C", "C")), 4)
-b1.place_notes(Note("C-3"), 4)
 b1.place_notes(Note("D-3"), 4)
 b1.place_notes(Note("E-3"), 4)
-b1.place_notes(Note("C-3"), 4)
+b1.place_notes(Note("F#-3"), 4)
+b1.place_notes(Note("D-3"), 4)
 t + b1
-b1 = Bar("C", (4,4))
-b1.place_notes(Note("F-3"), 2)
-b1.place_notes(Note("F-3"), 2)
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("G-3"), 2)
+b1.place_notes(Note("G-3"), 2)
 t + b1
-b1 = Bar("C", (4,4))
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("A-3"), 4)
 b1.place_notes(Note("G-3"), 4)
-b1.place_notes(Note("F-3"), 4)
+b1.place_notes(Note("F#-3"), 4)
 b1.place_notes(Note("E-3"), 4)
-b1.place_notes(Note("D-3"), 4)
 t + b1
-b1 = Bar("C", (4,4))
-b1.place_notes(Note("C-3"), 2)
-b1.place_notes(Note("C-3"), 2)
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("C#-3"), 2)
+b1.place_notes(Note("D-3"), 2)
 t + b1
 
 # b + n
@@ -88,18 +90,18 @@ mid = mido.MidiFile("test.midi")
 # 	print(msg)
 
 ### ACHANDO O BPM ###
-print(mid.length)
+# print(mid.length)
 for msg in mid.tracks[0]:
 	# print(msg)
 	if(msg.type == "set_tempo"):
 		bpm = mido.bpm2tempo(msg.tempo) 
 		break
 
-beat = 60.0 / bpm ### DURACAO DO BEAT EH 60 / BPM ACHADO ACIMA ###
-print bpm, beat
+# beat = 60.0 / bpm ### DURACAO DO BEAT EH 60 / BPM ACHADO ACIMA ###
+# print bpm, beat
 
-bars = round(mid.length / beat / 4) ### QNTD DE COMPASSOS ###
-print int(bars)
+# bars = round(mid.length / beat / 4) ### QNTD DE COMPASSOS ###
+# print int(bars)
 
 track = Track()
 
@@ -146,18 +148,24 @@ print meter
 #fluidsynth.play_Composition(c[0],1,100)
 
 print c[1]
-print "\n"
 print c2[1]
 print notes
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c[0], 100)
-track = LilyPond.from_Track(tra)
-LilyPond.to_pdf(track, "test")
+# track = LilyPond.from_Track(tra)
+# LilyPond.to_pdf(track, "test")
 
 ### DESCOBRIR PRIMEIRO ACORDE -> 1o GRAU ###
 
-### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
+### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
 
-### BOLAR TRANSIcoES DE ACORDES/NOTAS/GRAUS ###
+### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
+startProb = {1,0,0,0,0,0,0}
+
+### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
+notesInt = []
+for note in notes:
+	notesInt.append(Algo.note_to_int(note, "D"))
+print notesInt
 
 statesMaj = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
