@@ -150,8 +150,8 @@ print "\n"
 print c2[1]
 print notes
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c[0], 100)
-# track = LilyPond.from_Track(tra)
-# LilyPond.to_pdf(track, "/home/gabriel.morais/Downloads/test")
+track = LilyPond.from_Track(tra)
+LilyPond.to_pdf(track, "test")
 
 ### DESCOBRIR PRIMEIRO ACORDE -> 1o GRAU ###
 
