@@ -70,7 +70,7 @@ t + b1
 # # b+n
 # b1+n
 
-fluidsynth.init("/home/gabriel.morais/Downloads/GeneralUser_GS_1.471/soundfont.sf2","alsa")
+fluidsynth.init("GeneralUser_GS_1.471/soundfont.sf2","alsa")
 # nc = NoteContainer(chords.triad("C", "C"))
 # # for x in xrange(1,128):
 # # 	fluidsynth.set_instrument(1, x)
@@ -78,10 +78,10 @@ fluidsynth.init("/home/gabriel.morais/Downloads/GeneralUser_GS_1.471/soundfont.s
 # # 	#nc + c
 # print(t)
 # fluidsynth.play_Track(t,1,100)
-MidiFileOut.write_Track("/home/gabriel.morais/Downloads/test.midi", t, 150)
+MidiFileOut.write_Track("test.midi", t, 150)
 
 
-mid = mido.MidiFile("/home/gabriel.morais/Downloads/mel.mid")
+mid = mido.MidiFile("test.midi")
 # print(mid)
 
 # for msg in mid.play():
@@ -105,8 +105,8 @@ track = Track()
 
 
 c = Composition()
-c = MidiFileIn.MIDI_to_Composition("/home/gabriel.morais/Downloads/mel.mid")
-c2 = MidiFileIn.MIDI_to_Composition("/home/gabriel.morais/Downloads/test.midi")
+c = MidiFileIn.MIDI_to_Composition("mel.mid")
+c2 = MidiFileIn.MIDI_to_Composition("test.midi")
 # print c.__class__.__name__
 # print c
 # print "\n"
