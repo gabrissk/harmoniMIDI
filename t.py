@@ -62,6 +62,46 @@ b1.place_notes(Note("C#-3"), 2)
 b1.place_notes(Note("D-3"), 2)
 t + b1
 
+b2 = Bar(None, (4,4))
+b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
+t1 = Track()
+t1+b2
+b2 = Bar(None, (4,4))
+b2.place_notes(NoteContainer(chords.triad("E", "D")), 1)
+t1+b2
+b2 = Bar(None, (4,4))
+b2.place_notes(NoteContainer(chords.triad("G", "D")), 1)
+t1+b2
+b2 = Bar(None, (4,4))
+b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
+t1+b2
+print t1
+MidiFileOut.write_Track("out.midi", t1, 150)
+
+b1 = Bar(None, (4,4))
+# b1.place_notes(NoteContainer(chords.triad("C", "C")), 4)
+# b1.place_notes(Note("G-3"), 4)
+# b1.place_notes(Note("G-3"), 4)
+# b1.place_notes(Note("G-3"), 4)
+# b1.place_notes(Note("G-3"), 4)
+# t = Track()
+# t + b1
+# b1 = Bar(None, (4,4))
+# b1.place_notes(Note("F#-3"), 2)
+# b1.place_notes(Note("F#-3"), 2)
+# t + b1
+# b1 = Bar(None, (4,4))
+# b1.place_notes(Note("A-3"), 4)
+# b1.place_notes(Note("A-3"), 4)
+# b1.place_notes(Note("A-3"), 4)
+# b1.place_notes(Note("A-3"), 4)
+# t + b1
+# b1 = Bar(None, (4,4))
+# b1.place_notes(Note("G-3"), 2)
+# b1.place_notes(Note("G-3"), 2)
+# t + b1
+MidiFileOut.write_Track("out2.midi", t, 150)
+
 # b + n
 # b1 + n
 # n = NoteContainer(chords.triad("F", "C"))
@@ -178,6 +218,8 @@ print notesInt
 statesMaj = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
 
+states = (1,2,3,4,5,6,7)
+
 majTransitionProbs = {
 	'I':   {'I': 0,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
 	'ii':  {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0.1428, 'V': 0.8572, 'vi': 0,      'vii': 0},
@@ -200,9 +242,9 @@ majEmissionProbs = {
 
 bars = c2[0].tracks[0].bars
 firstBar = bars[0].get_note_names()
-
+print states
 Algo.algorithm(notesInt, statesMaj, startProb, majTransitionProbs, majEmissionProbs)
-
+print len(bars[:-1])
 
 # minTransitionProbs = {
 # 	'i': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },

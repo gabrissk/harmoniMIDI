@@ -39,14 +39,21 @@ def note_to_int(note, key):
 		return 12 - (Notes.note_to_int(key) - Notes.note_to_int(note)) 
 
 def algorithm2(obs, states, start_p, trans_p, emit_p):
-	v = [{}]
-	b = [{}]
-	for i in states:
+	# v = [{}]
+	# b = [{}]
+	v = [[0 for _ in range(len(obs))] for _ in range(len(states))]
+	b = [ [0 for _ in range(len(obs))] for _ in range(len(states))]
+	print v
+	for i in range(len(states)):
 		v[0][i] = start_p[i] * emit_p[i][obs[0]]
-		b[0][i] = 0
+	
 	for i in range(1, len(obs)):
-		for j in range(len(states)):
-			v[j][i] = emit_p[j][obs[i]] * max(v[k][i-1] * trans_p[k][j] for k in range(len(states)))
+		for j in states:
+			print len(v)
+			print len(obs)
+			print len(trans_p["I"])
+			print len(states)
+			v[i][j] = emit_p[j][obs[i]] * max(v[i-1][k] * trans_p[k][j] for k in states)
 			b[j][k] = max(enumerate([v[k][i-1] * trans_p[k][j] for k in range(len(states))]), key = operator.itemgetter(1))
 
 	z, max_prob = max(enumerate([v[k][-1] for k in range(len(states))]), key = operator.itemgetter(1))
