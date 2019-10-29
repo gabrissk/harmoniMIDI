@@ -24,6 +24,8 @@ import mingus.extra.lilypond as LilyPond
 
 import algorithm as Algo
 
+import music21
+
 
 n = NoteContainer(chords.triad("C", "C"))
 
@@ -155,40 +157,52 @@ print notes
 # LilyPond.to_pdf(track, "test")
 
 ### DESCOBRIR PRIMEIRO ACORDE -> 1o GRAU ###
+score = music21.converter.parse("test.midi")
+key = score.analyze('key')
+print(key.tonic.name, key.mode)
+
+major = key.mode == "major"
 
 ### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
 
 ### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
-startProb = {1,0,0,0,0,0,0}
+startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
 
 ### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
+
 notesInt = []
 for note in notes:
-	notesInt.append(Algo.note_to_int(note, "D"))
+	notesInt.append(Algo.note_to_int(note, key.tonic.name))
 print notesInt
 
 statesMaj = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
 
 majTransitionProbs = {
-	'I':   {'I': 0.004,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
+	'I':   {'I': 0,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
 	'ii':  {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0.1428, 'V': 0.8572, 'vi': 0,      'vii': 0},
 	'iii': {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0.8572, 'vii': 0},
 	'IV':  {'I': 0.1428, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.8572, 'vi': 0,      'vii': 0},
-	'V':   {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0},
+	'V':   {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0, 'vi': 0,      'vii': 0},
 	'vi':  {'I': 0,      'ii': 0.8572, 'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0},
 	'vii': {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0}
 }
 
 majEmissionProbs = {
-	'I':   {1: 0.278, 2: 0,     3: 0,     4: 0,     5: 0.278, 6: 0,     7: 0,     8: 0.278, 9: 0,     10: 0,     11: 0,     12: 0.166},
-	'ii':  {1: 0,     2: 0.166, 3: 0.278, 4: 0,     5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0.278, 11: 0,     12: 0},
-	'iii': {1: 0,     2: 0,     3: 0,     4: 0.166, 5: 0.278, 6: 0,     7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0,     12: 0.278},
-	'IV':  {1: 0.278, 2: 0,     3: 0,     4: 0,     5: 0.166, 6: 0.278, 7: 0,     8: 0,     9: 0,     10: 0.278, 11: 0,     12: 0},
-	'V':   {1: 0,     2: 0,     3: 0.278, 4: 0,     5: 0,     6: 0,     7: 0.166, 8: 0.278, 9: 0,     10: 0,     11: 0,     12: 0.278},
-	'vi':  {1: 0,     2: 0.278, 3: 0,     4: 0,     5: 0.278, 6: 0,     7: 0,     8: 0,     9: 0.166, 10: 0.278, 11: 0,     12: 0},
-	'vii': {1: 0,     2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.166, 12: 0.278}
+	'I':   {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.166},
+	'ii':  {0: 0,     1: 0.166, 2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
+	'iii': {0: 0,     1: 0,     2: 0,     3: 0.166, 4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.278, 9: 0,     10: 0,     11: 0.278},
+	'IV':  {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.166, 5: 0.278, 6: 0,     7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
+	'V':   {0: 0,     1: 0,     2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.166, 7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.278},
+	'vi':  {0: 0,     1: 0.278, 2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.166, 9: 0.278, 10: 0,     11: 0},
+	'vii': {0: 0,     1: 0,     2: 0,     3: 0.278, 4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0,     10: 0.166, 11: 0.278}
 }
+
+bars = c2[0].tracks[0].bars
+firstBar = bars[0].get_note_names()
+
+Algo.algorithm(notesInt, statesMaj, startProb, majTransitionProbs, majEmissionProbs)
+
 
 # minTransitionProbs = {
 # 	'i': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },

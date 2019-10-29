@@ -1,7 +1,5 @@
 import mingus.core.notes as Notes
-
-
-
+import mingus.core.chords as Chords
 
 def algorithm(obs, states, start_p, trans_p, emit_p):
 	v = [{}]
@@ -29,13 +27,38 @@ def algorithm(obs, states, start_p, trans_p, emit_p):
 			prev = state
 			break
 	for i in range(len(v) -2, -1, -1):
-		result.insert(0, v[t+1][prev]["prev"])
-		prev = v[t+1][prev]["prev"]
+		result.insert(0, v[i+1][prev]["prev"])
+		prev = v[i+1][prev]["prev"]
 
-	print result.join()
+	print result
 
 def note_to_int(note, key):
 	if(Notes.note_to_int(note) >= Notes.note_to_int(key)) :
 		return Notes.note_to_int(note) - Notes.note_to_int(key)
 	else:
 		return 12 - (Notes.note_to_int(key) - Notes.note_to_int(note)) 
+
+def algorithm2(obs, states, start_p, trans_p, emit_p):
+	v = [{}]
+	b = [{}]
+	for i in states:
+		v[0][i] = start_p[i] * emit_p[i][obs[0]]
+		b[0][i] = 0
+	for i in range(1, len(obs)):
+		for j in range(len(states)):
+			v[j][i] = emit_p[j][obs[i]] * max(v[k][i-1] * trans_p[k][j] for k in range(len(states)))
+			b[j][k] = max(enumerate([v[k][i-1] * trans_p[k][j] for k in range(len(states))]), key = operator.itemgetter(1))
+
+	z, max_prob = max(enumerate([v[k][-1] for k in range(len(states))]), key = operator.itemgetter(1))
+	path = [None for _ in range(len(obs))]
+	path[-1] = states[z]
+
+	for i in range(len(obs)-1, 0 , -1):
+		z = b[z][i]
+		path[i-1] = states[z]
+
+	print path
+
+
+
+
