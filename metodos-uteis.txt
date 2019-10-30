@@ -1,0 +1,87 @@
+mingus.core.notes.reduce_accidentals(note)[source]
+Reduce any extra accidentals to proper notes.
+
+mingus.core.notes.remove_redundant_accidentals(note)[source]
+Remove redundant sharps and flats from the given note.
+
+mingus.core.intervals.determine(note1, note2, shorthand=False)[source]
+Name the interval between note1 and note2.
+
+Examples:
+
+>>> determine('C', 'E')
+'major third'
+
+mingus.core.intervals.get_interval(note, interval, key=C)[source]
+Return the note an interval (in half notes) away from the given note.
+
+mingus.core.intervals.interval(key, start_note, interval)[source]
+Return the note found at the interval starting from start_note in the given key.
+
+Raise a KeyError exception if start_note is not a valid note.
+
+Example:
+
+>>> interval('C', 'D', 1)
+'E'
+
+mingus.core.intervals.invert(interval)[source]
+Invert an interval.
+
+Example:
+
+>>> invert(['C', 'E'])
+['E', 'C']
+
+mingus.core.intervals.is_consonant(note1, note2, include_fourths=True)[source]
+Return True if the interval is consonant.
+
+A consonance is a harmony, chord, or interval considered stable, as opposed to a dissonance.
+
+This function tests whether the given interval is consonant. This basically means that it checks whether the interval is (or sounds like) a unison, third, sixth, perfect fourth or perfect fifth.
+
+mingus.core.scales.determine(notes)[source]
+Determine the scales containing the notes.
+
+All major and minor scales are recognized.
+
+Example:
+
+>>> determine(['A', 'Bb', 'E', 'F#', 'G'])
+['G melodic minor', 'G Bachian', 'D harmonic major']
+
+mingus.core.progressions.substitute(progression, substitute_index, depth=0)[source]
+Give a list of possible substitutions for progression[substitute_index].
+
+If depth > 0 the substitutions of each result will be recursively added as well.
+
+Example:
+
+>>> substitute(['I', 'IV', 'V', 'I'], 0)
+['III', 'III7', 'VI', 'VI7', 'I7']
+
+mingus.core.progressions.determine(chord, key, shorthand=False)[source]
+Determine the harmonic function of chord in key.
+
+This function can also deal with lists of chords.
+
+Examples:
+
+>>> determine(['C', 'E', 'G'], 'C')
+['tonic']
+>>> determine(['G', 'B', 'D'], 'C')
+['dominant']
+>>> determine(['G', 'B', 'D', 'F'], 'C', True)
+['V7']
+>>> determine([['C', 'E', 'G'], ['G', 'B', 'D']], 'C', True)
+[['I'], ['V']]
+
+ingus.core.progressions.to_chords(progression, key=C)[source]
+Convert a list of chord functions or a string to a list of chords.
+
+Examples:
+
+>>> to_chords(['I', 'V7'])
+[['C', 'E', 'G'], ['G', 'B', 'D', 'F']]
+>>> to_chords('I7')
+[['C', 'E', 'G', 'B']]
