@@ -1,5 +1,6 @@
 import mingus.core.notes as Notes
 import mingus.core.chords as Chords
+import mingus.core.progressions as Progressions
 
 def algorithm(obs, states, start_p, trans_p, emit_p):
 	v = [{}]
@@ -65,6 +66,29 @@ def algorithm2(obs, states, start_p, trans_p, emit_p):
 		path[i-1] = states[z]
 
 	print path
+
+
+
+
+def algorithm3(bars, melody, key, states, emit): 
+	prev = "I"
+	chords = []
+	# chords.append(Progressions.to_chords("I", key))
+	for bar in bars:
+		notes = []
+		states = {'I':0, 'ii':0, 'iii':0, 'IV':0, 'V':0, 'vi':0, 'vii':0}
+		for note in bar:
+			for state in states:
+				states[state] += emit[state][note_to_int(note, key)]
+		print states
+		curr = max(states.iterkeys(), key=(lambda key: states[key]))
+		print curr
+		if(curr == prev):
+			states[curr] = 0
+			curr = max(states.iterkeys(), key=(lambda key: states[key]))
+		chords.append(curr)
+	
+
 
 
 

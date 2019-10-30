@@ -75,7 +75,7 @@ t1+b2
 b2 = Bar(None, (4,4))
 b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
 t1+b2
-print t1
+# print t1
 MidiFileOut.write_Track("out.midi", t1, 150)
 
 b1 = Bar(None, (4,4))
@@ -156,13 +156,15 @@ c2 = MidiFileIn.MIDI_to_Composition("test.midi")
 # print "\n"
 tra = Track()
 notes = list()
+bars = []
 for x in c2:
 	# print x
-	print x.__class__.__name__
+	# print x.__class__.__name__
 	if(x.__class__.__name__ == "Composition"):
 		for track in x.tracks:
 			# print "Track:"
 			# print track
+			i = 0;
 			for bar in track.bars:
 				# print "bars:"
 				# bar.set_meter((3,4))
@@ -170,10 +172,17 @@ for x in c2:
 				# print bar.key.key
 				# print bar.meter
 				tra + bar
+				notesB = list()
 				for y in bar:
 					# notes + Note(String(NoteContainer(y[-1]))) ### CADA NOTA DA MELODIA ESTA AQUI
 					if(len(NoteContainer(y[-1]).get_note_names()) > 0):
 						notes.append(NoteContainer(y[-1]).get_note_names()[0])
+						notesB.append(NoteContainer(y[-1]).get_note_names()[0])
+					# print bars
+					# print notesB
+					# print notes
+				bars.append(notesB)
+				i = i +1
 					# print y
 					# print "\n"
 				# print "\n"
@@ -183,15 +192,18 @@ for x in c2:
 
 # 	print "\n"
 
-print key
-print meter
+# print key
+# print meter
 
 # print(c[0])
 #fluidsynth.play_Composition(c[0],1,100)
 
-print c[1]
-print c2[1]
-print notes
+# print c[1]
+# print c2[1]
+# print notes
+bars = bars[:-1]
+print "bars: "
+print bars
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c[0], 100)
 # track = LilyPond.from_Track(tra)
 # LilyPond.to_pdf(track, "test")
@@ -199,7 +211,7 @@ print notes
 ### DESCOBRIR PRIMEIRO ACORDE -> 1o GRAU ###
 score = music21.converter.parse("test.midi")
 key = score.analyze('key')
-print(key.tonic.name, key.mode)
+# print(key.tonic.name, key.mode)
 
 major = key.mode == "major"
 
@@ -213,7 +225,7 @@ startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
 notesInt = []
 for note in notes:
 	notesInt.append(Algo.note_to_int(note, key.tonic.name))
-print notesInt
+# print notesInt
 
 statesMaj = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
@@ -231,20 +243,27 @@ majTransitionProbs = {
 }
 
 majEmissionProbs = {
-	'I':   {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.166},
-	'ii':  {0: 0,     1: 0.166, 2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
-	'iii': {0: 0,     1: 0,     2: 0,     3: 0.166, 4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.278, 9: 0,     10: 0,     11: 0.278},
-	'IV':  {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.166, 5: 0.278, 6: 0,     7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
-	'V':   {0: 0,     1: 0,     2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.166, 7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.278},
-	'vi':  {0: 0,     1: 0.278, 2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.166, 9: 0.278, 10: 0,     11: 0},
-	'vii': {0: 0,     1: 0,     2: 0,     3: 0.278, 4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0,     10: 0.166, 11: 0.278}
+	'I':   {0: 0.378, 1: 0,     2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.166},
+	'ii':  {0: 0,     1: 0.166, 2: 0.378, 3: 0,     4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
+	'iii': {0: 0,     1: 0,     2: 0,     3: 0.166, 4: 0.378, 5: 0,     6: 0,     7: 0,     8: 0.278, 9: 0,     10: 0,     11: 0.278},
+	'IV':  {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.166, 5: 0.378, 6: 0,     7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
+	'V':   {0: 0,     1: 0,     2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.166, 7: 0.378, 8: 0,     9: 0,     10: 0,     11: 0.278},
+	'vi':  {0: 0,     1: 0.278, 2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.166, 9: 0.378, 10: 0,     11: 0},
+	'vii': {0: 0,     1: 0,     2: 0,     3: 0.278, 4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0,     10: 0.166, 11: 0.378}
 }
 
-bars = c2[0].tracks[0].bars
-firstBar = bars[0].get_note_names()
-print states
-Algo.algorithm(notesInt, statesMaj, startProb, majTransitionProbs, majEmissionProbs)
-print len(bars[:-1])
+
+# print states
+# Algo.algorithm(notesInt, statesMaj, startProb, majTransitionProbs, majEmissionProbs)
+
+
+# for bar in bars:
+# 	print "bar:"
+# 	print bar
+	# print bar.determine_progression()
+
+
+Algo.algorithm3(bars, notesInt, key.tonic.name, statesMaj, majEmissionProbs)
 
 # minTransitionProbs = {
 # 	'i': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
