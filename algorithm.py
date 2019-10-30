@@ -71,7 +71,7 @@ def algorithm2(obs, states, start_p, trans_p, emit_p):
 
 
 def algorithm3(bars, melody, key, states, emit): 
-	prev = "I"
+	prev = "-"
 	chords = []
 	# chords.append(Progressions.to_chords("I", key))
 	for bar in bars:
@@ -87,7 +87,9 @@ def algorithm3(bars, melody, key, states, emit):
 			states[curr] = 0
 			curr = max(states.iterkeys(), key=(lambda key: states[key]))
 		chords.append(curr)
-	
+		prev = curr
+		print "\n"
+	return chords
 
 
 

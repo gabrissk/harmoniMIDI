@@ -202,8 +202,8 @@ for x in c2:
 # print c2[1]
 # print notes
 bars = bars[:-1]
-print "bars: "
-print bars
+# print "bars: "
+# print bars
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c[0], 100)
 # track = LilyPond.from_Track(tra)
 # LilyPond.to_pdf(track, "test")
@@ -263,7 +263,8 @@ majEmissionProbs = {
 	# print bar.determine_progression()
 
 
-Algo.algorithm3(bars, notesInt, key.tonic.name, statesMaj, majEmissionProbs)
+chords = Algo.algorithm3(bars, notesInt, key.tonic.name, statesMaj, majEmissionProbs)
+print chords
 
 # minTransitionProbs = {
 # 	'i': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
