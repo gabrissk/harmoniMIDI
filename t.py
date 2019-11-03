@@ -1,5 +1,5 @@
 #import mingus.core.diatonic as diatonic
-import mingus.core.chords as chords
+import mingus.core.chords as Chords
 import mingus.core.notes as Notes
 import mingus.core.intervals as intervals
 import mingus.core.scales as scales
@@ -99,9 +99,26 @@ chords = progressions.to_chords(chords, key)
 Harmonizer.export(tra, chords, key, (4,4), bpm)
 
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c2[0], 100)
+shorthand = []
+for chord in chords:
+	shorthand.append(Chords.determine_triad(chord, True))
+print shorthand 
 track = LilyPond.from_Track(tra)
 track = track[1:-1]
-track = '{\\key ' + key.lower() + " \\" + mode + '\n' + '\\chords { c2 g:sus4 f e }' + '\n' + '\\relative c'' ' + track + '}'
+track = 'melody = \\relative d {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
+		harmonies = \\chordmode {d a g d}\n
+		\\score {\n
+		<<\n
+    	\\new ChordNames {\n 
+      	\\set chordChanges = ##t\n 
+      	\\harmonies\n 
+    	}\n 
+    	\\new Staff \\melody 
+ 		>>\n 
+  		\\layout{ } \n 
+  		\\midi { }\n 
+		}''' 
+		
 print track
 LilyPond.to_pdf(track, "test")
 
