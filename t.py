@@ -17,98 +17,19 @@ from mingus.midi import fluidsynth
 
 from mingus.midi import midi_file_in as MidiFileIn
 from mingus.midi import midi_file_out as MidiFileOut
-
 import mido
-
 import mingus.extra.lilypond as LilyPond
-
 import algorithm as Harmonizer
-
 import music21
-
-
-n = NoteContainer(chords.triad("C", "C"))
-
-b = Bar(None, (4,4))
-b.place_notes(NoteContainer(chords.triad("C", "C")),8)
-b.place_notes(NoteContainer(chords.triad("C", "C")),8)
-b.place_notes(NoteContainer(chords.triad("A", "C")),4)
-b.place_notes(NoteContainer(chords.triad("F", "C")),4)
-b.place_notes(NoteContainer(chords.triad("G", "C")),4)
-
-t = Track()
-t.name = "Teste"
-
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("D-3"), 4)
-b1.place_notes(Note("E-3"), 4)
-b1.place_notes(Note("F#-3"), 4)
-b1.place_notes(Note("G-3"), 4)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("A-3"), 2)
-b1.place_notes(Note("D-3"), 2)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("B-3"), 4)
-b1.place_notes(Note("G-3"), 4)
-b1.place_notes(Note("D-4"), 4)
-b1.place_notes(Note("B-3"), 4)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("A-3"), 2)
-b1.place_notes(Note("A-3"), 2)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("B-3"), 4)
-b1.place_notes(Note("G-3"), 4)
-b1.place_notes(Note("D-4"), 4)
-b1.place_notes(Note("B-3"), 4)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("A-3"), 4)
-b1.place_notes(Note("F#-3"), 4)
-b1.place_notes(Note("D-4"), 4)
-b1.place_notes(Note("F#-3"), 4)
-t + b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("E-3"), 4)
-b1.place_notes(Note("F#-3"), 4)
-b1.place_notes(Note("G-3"), 4)
-b1.place_notes(Note("C#-3"), 4)
-t+b1
-b1 = Bar(None, (4,4))
-b1.place_notes(Note("D-3"), 2)
-b1.place_notes(Note("D-3"), 2)
-t+b1
-
-MidiFileOut.write_Track("test.midi", t, 150)
-
-b2 = Bar(None, (4,4))
-b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
-t1 = Track()
-t1+b2
-b2 = Bar(None, (4,4))
-b2.place_notes(NoteContainer(chords.triad("E", "D")), 1)
-t1+b2
-b2 = Bar(None, (4,4))
-b2.place_notes(NoteContainer(chords.triad("G", "D")), 1)
-t1+b2
-b2 = Bar(None, (4,4))
-b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
-t1+b2
-MidiFileOut.write_Track("out.midi", t1, 150)
+import midiToAudio
+import sys
 
 
 
 # fluidsynth.init("GeneralUser_GS_1.471/soundfont.sf2","alsa")
 
-track = Track()
-
 c = Composition()
-c = MidiFileIn.MIDI_to_Composition("mel.mid")
-c2 = MidiFileIn.MIDI_to_Composition("test.midi")
-c3 = MidiFileIn.MIDI_to_Composition("gnr.midi")
+c2 = MidiFileIn.MIDI_to_Composition(sys.argv[2])
 
 tra = Track()
 notes = list()
@@ -118,7 +39,8 @@ for x in c2:
 		for track in x.tracks:
 			i = 0;
 			for bar in track.bars:
-				tra + bar
+				if len(bar.get_note_names()) > 0:
+					tra + bar
 				notesB = list()
 				for y in bar:
 					# notes + Note(String(NoteContainer(y[-1]))) ### CADA NOTA DA MELODIA ESTA AQUI
@@ -131,6 +53,7 @@ for x in c2:
 			meter = x.tracks[0][0].meter
 bars = bars[:-1]
 
+bpm = c2[1]
 
 ### DESCOBRIR TONALIDADE MELODIA -> 1o GRAU ###
 key_and_mode = scales.determine(notes)[0]
@@ -168,16 +91,19 @@ emissionProbs = {
 states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 
 chords = Harmonizer.harmonize(bars, notesInt, key, states, emissionProbs, (4,4), mode)
-print chords
+# print chords
 Harmonizer.reharmonize(chords)
-print chords
-print progressions.to_chords(chords, key)
+# print chords
+chords = progressions.to_chords(chords, key)
 
+Harmonizer.export(tra, chords, key, (4,4), bpm)
 
 # MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c2[0], 100)
-# track = LilyPond.from_Track(tra)
-# LilyPond.to_pdf(track, "test")
-
+track = LilyPond.from_Track(tra)
+track = track[1:-1]
+track = '{\\key ' + key.lower() + " \\" + mode + '\n' + '\\chords { c2 g:sus4 f e }' + '\n' + '\\relative c'' ' + track + '}'
+print track
+LilyPond.to_pdf(track, "test")
 
 
 

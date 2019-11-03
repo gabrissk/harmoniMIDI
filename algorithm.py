@@ -1,9 +1,25 @@
 import mingus.core.notes as Notes
 import mingus.core.chords as Chords
 import mingus.core.progressions as Progressions
+from mingus.containers import Note
+from mingus.containers import NoteContainer
+from mingus.containers import Bar
+from mingus.containers.instrument import Instrument, Piano, Guitar
+from mingus.containers import Track
+from mingus.containers import Composition
+
+from mingus.midi import fluidsynth
+
+from mingus.midi import midi_file_in as MidiFileIn
+from mingus.midi import midi_file_out as MidiFileOut
 from random import seed
 from random import randint
 from random import shuffle
+
+import mingus.extra.lilypond as LilyPond
+
+import midiToAudio as midi
+import sys, os
 
 def note_to_int(note, key):
 	if(Notes.note_to_int(note) >= Notes.note_to_int(key)) :
@@ -37,19 +53,17 @@ def harmonize(bars, melody, key, states, emit, time_sig, mode):
 					states[state] += (emit[state][note_to_int(bars[i][j], key)] * head)
 				else:
 					states[state] += (emit[state][note_to_int(bars[i][j], key)])
-		# print states
 		if i == 0:
 			if firstChord(states):
 				chords.append("I")
 				prev = ("I")
 				continue
 		states[prev] = 0
-		# curr = max(states.iterkeys(), key=(lambda key: states[key]))
 		curr = bestChord(states, prev)
-		print curr
+		# print curr
 		chords.append(curr)
 		prev = curr
-		print "\n"
+		# print "\n"
 	return chords
 
 cadences = {
@@ -95,3 +109,36 @@ def reharmonize(chords):
 				if sub != chords[i-1] and sub != chords[i+1]:
 					chords[i] = sub
 					break
+
+def export(melody_track, chords, key, time_sig, bpm):
+	i = Instrument()
+	i.instrument_nr = 1
+	t2 = Track()
+	for i in range(0, len(chords)):
+		b = Bar(key, time_sig)
+		b.place_notes(NoteContainer(chords[i]), 1)
+		t2 + b
+
+	c = Composition()
+	print melody_track.__class__.__name__
+	c.add_track(melody_track)
+	c.add_track(t2)
+
+	if not os.path.exists(sys.argv[3]):
+		os.makedirs(sys.argv[3])
+	MidiFileOut.write_Composition(sys.argv[3]+'/'+sys.argv[2], c, bpm)
+
+	file = sys.argv[3] + '/' + sys.argv[2]
+
+	sys.argv[1] = "--sf2-dir=" + sys.argv[1]
+	sys.argv[2] = "--midi-file=" + file
+	sys.argv[3] = "--out-dir=" + sys.argv[3]
+
+	print sys.argv
+	midi.main()
+
+	os.remove(file)
+
+	# track = LilyPond.from_Composition(c)
+	# LilyPond.to_pdf(track, "test")
+
