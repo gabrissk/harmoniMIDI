@@ -1,37 +1,9 @@
 import mingus.core.notes as Notes
 import mingus.core.chords as Chords
 import mingus.core.progressions as Progressions
-
-def algorithm(obs, states, start_p, trans_p, emit_p):
-	v = [{}]
-	for state in states:	
-		v[0][state] = {"prob": start_p[state] * emit_p[state][obs[0]], "prev": None}
-	for t in range(1, len(obs)):
-		v.append({})
-		for state in states:
-			max_tr_prob = v[t-1][states[0]]["prob"] * trans_p[states[0]][state]
-			prev_sel = states[0]
-			for prev_state in states[1:]:
-				prob = v[t-1][prev_state]["prob"] * trans_p[prev_state][state]
-				if prob > max_tr_prob:
-					max_tr_prob = prob
-					prev_sel = prev_state
-			max_prob = max_tr_prob * emit_p[state][obs[t]]
-			v[t][state] = {"prob": max_prob, "prev": prev_sel}
-
-	result = []
-	max_prob = max(value["prob"] for value in v[-1].values())
-	prev = None
-	for state, data in v[-1].items():
-		if data["prob"] == max_prob:
-			result.append(state)
-			prev = state
-			break
-	for i in range(len(v) -2, -1, -1):
-		result.insert(0, v[i+1][prev]["prev"])
-		prev = v[i+1][prev]["prev"]
-
-	print result
+from random import seed
+from random import randint
+from random import shuffle
 
 def note_to_int(note, key):
 	if(Notes.note_to_int(note) >= Notes.note_to_int(key)) :
@@ -39,59 +11,87 @@ def note_to_int(note, key):
 	else:
 		return 12 - (Notes.note_to_int(key) - Notes.note_to_int(note)) 
 
-def algorithm2(obs, states, start_p, trans_p, emit_p):
-	# v = [{}]
-	# b = [{}]
-	v = [[0 for _ in range(len(obs))] for _ in range(len(states))]
-	b = [ [0 for _ in range(len(obs))] for _ in range(len(states))]
-	print v
-	for i in range(len(states)):
-		v[0][i] = start_p[i] * emit_p[i][obs[0]]
-	
-	for i in range(1, len(obs)):
-		for j in states:
-			print len(v)
-			print len(obs)
-			print len(trans_p["I"])
-			print len(states)
-			v[i][j] = emit_p[j][obs[i]] * max(v[i-1][k] * trans_p[k][j] for k in states)
-			b[j][k] = max(enumerate([v[k][i-1] * trans_p[k][j] for k in range(len(states))]), key = operator.itemgetter(1))
 
-	z, max_prob = max(enumerate([v[k][-1] for k in range(len(states))]), key = operator.itemgetter(1))
-	path = [None for _ in range(len(obs))]
-	path[-1] = states[z]
-
-	for i in range(len(obs)-1, 0 , -1):
-		z = b[z][i]
-		path[i-1] = states[z]
-
-	print path
-
-
-
-
-def algorithm3(bars, melody, key, states, emit): 
-	prev = "-"
+def harmonize(bars, melody, key, states, emit, time_sig, mode): 
+	prev = '-'
 	chords = []
 	# chords.append(Progressions.to_chords("I", key))
-	for bar in bars:
-		notes = []
+	print melody
+	(bpb, vb) = time_sig
+
+	### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
+	###	DEPOIS DECIDIR PARA QUAL ACORDE IR, LEVANDO EM CONTA O ACORDE ANTERIOR (CADEIA DE MARKOV) ###
+	# for bar in bars:
+	for i in range(0, len(bars)):
+		notes = []		
 		states = {'I':0, 'ii':0, 'iii':0, 'IV':0, 'V':0, 'vi':0, 'vii':0}
-		for note in bar:
+		# for note in bars[i]:
+		head = 1.1
+		if len(bars[i]) == 0:
+			chords.append(prev)
+
+		for j in range(0, len(bars[i])):
 			for state in states:
-				states[state] += emit[state][note_to_int(note, key)]
-		print states
-		curr = max(states.iterkeys(), key=(lambda key: states[key]))
+				# Nota no primeiro tempo (sempre forte) tem mais peso
+				if j == 0:
+					states[state] += (emit[state][note_to_int(bars[i][j], key)] * head)
+				else:
+					states[state] += (emit[state][note_to_int(bars[i][j], key)])
+		# print states
+		if i == 0:
+			if firstChord(states):
+				chords.append("I")
+				prev = ("I")
+				continue
+		states[prev] = 0
+		# curr = max(states.iterkeys(), key=(lambda key: states[key]))
+		curr = bestChord(states, prev)
 		print curr
-		if(curr == prev):
-			states[curr] = 0
-			curr = max(states.iterkeys(), key=(lambda key: states[key]))
 		chords.append(curr)
 		prev = curr
 		print "\n"
 	return chords
 
+cadences = {
+	'ii': 'V',
+	'V': 'I',
+	'IV': 'V',
+	'vii': 'I'
+}
 
+def bestChord(states, prev):
+	best = ('-', 0)
+	for state in states:
+		curr = states.get(state)
+		if curr > best[1]:
+			best = (state, curr)
+		elif curr == best[1]: # Caso haja empate, confere cadencias
+			if cadences.has_key(prev) and cadences[prev] == state:
+				best = (state, curr)
+				print 'cadencia' 
+				print best
+	return best[0]
 
+def firstChord(states):
+	sorted_states = sorted(states, key=(lambda key: states[key]))
+	ln = len(sorted_states)
+	for i in range(ln-1, ln-4, -1):
+		if sorted_states[i] == 'I':
+			return True
+	return False
 
+def avoid(mode):
+	if mode == "major":
+		return {
+		'I': 'iii',
+		}
 
+def reharmonize(chords):
+	seed(1)
+	for i in range(1, len(chords)-1):
+		if randint(1,10) > 5:
+			subs = Progressions.substitute([chords[i]], 0)
+			for sub in subs:
+				if sub != chords[i-1] and sub != chords[i+1]:
+					chords[i] = sub
+					break

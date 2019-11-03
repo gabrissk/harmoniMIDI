@@ -22,7 +22,7 @@ import mido
 
 import mingus.extra.lilypond as LilyPond
 
-import algorithm as Algo
+import algorithm as Harmonizer
 
 import music21
 
@@ -37,30 +37,52 @@ b.place_notes(NoteContainer(chords.triad("F", "C")),4)
 b.place_notes(NoteContainer(chords.triad("G", "C")),4)
 
 t = Track()
-# print(t)
 t.name = "Teste"
 
 b1 = Bar(None, (4,4))
-# b1.place_notes(NoteContainer(chords.triad("C", "C")), 4)
 b1.place_notes(Note("D-3"), 4)
 b1.place_notes(Note("E-3"), 4)
 b1.place_notes(Note("F#-3"), 4)
-b1.place_notes(Note("D-3"), 4)
+b1.place_notes(Note("G-3"), 4)
 t + b1
 b1 = Bar(None, (4,4))
-b1.place_notes(Note("G-3"), 2)
-b1.place_notes(Note("G-3"), 2)
+b1.place_notes(Note("A-3"), 2)
+b1.place_notes(Note("D-3"), 2)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("B-3"), 4)
+b1.place_notes(Note("G-3"), 4)
+b1.place_notes(Note("D-4"), 4)
+b1.place_notes(Note("B-3"), 4)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("A-3"), 2)
+b1.place_notes(Note("A-3"), 2)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("B-3"), 4)
+b1.place_notes(Note("G-3"), 4)
+b1.place_notes(Note("D-4"), 4)
+b1.place_notes(Note("B-3"), 4)
 t + b1
 b1 = Bar(None, (4,4))
 b1.place_notes(Note("A-3"), 4)
-b1.place_notes(Note("G-3"), 4)
 b1.place_notes(Note("F#-3"), 4)
-b1.place_notes(Note("E-3"), 4)
+b1.place_notes(Note("D-4"), 4)
+b1.place_notes(Note("F#-3"), 4)
 t + b1
 b1 = Bar(None, (4,4))
-b1.place_notes(Note("C#-3"), 2)
+b1.place_notes(Note("E-3"), 4)
+b1.place_notes(Note("F#-3"), 4)
+b1.place_notes(Note("G-3"), 4)
+b1.place_notes(Note("C#-3"), 4)
+t+b1
+b1 = Bar(None, (4,4))
 b1.place_notes(Note("D-3"), 2)
-t + b1
+b1.place_notes(Note("D-3"), 2)
+t+b1
+
+MidiFileOut.write_Track("test.midi", t, 150)
 
 b2 = Bar(None, (4,4))
 b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
@@ -75,102 +97,27 @@ t1+b2
 b2 = Bar(None, (4,4))
 b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
 t1+b2
-# print t1
 MidiFileOut.write_Track("out.midi", t1, 150)
 
-b1 = Bar(None, (4,4))
-# b1.place_notes(NoteContainer(chords.triad("C", "C")), 4)
-# b1.place_notes(Note("G-3"), 4)
-# b1.place_notes(Note("G-3"), 4)
-# b1.place_notes(Note("G-3"), 4)
-# b1.place_notes(Note("G-3"), 4)
-# t = Track()
-# t + b1
-# b1 = Bar(None, (4,4))
-# b1.place_notes(Note("F#-3"), 2)
-# b1.place_notes(Note("F#-3"), 2)
-# t + b1
-# b1 = Bar(None, (4,4))
-# b1.place_notes(Note("A-3"), 4)
-# b1.place_notes(Note("A-3"), 4)
-# b1.place_notes(Note("A-3"), 4)
-# b1.place_notes(Note("A-3"), 4)
-# t + b1
-# b1 = Bar(None, (4,4))
-# b1.place_notes(Note("G-3"), 2)
-# b1.place_notes(Note("G-3"), 2)
-# t + b1
-MidiFileOut.write_Track("out2.midi", t, 150)
-
-# b + n
-# b1 + n
-# n = NoteContainer(chords.triad("F", "C"))
-# b+n
-# b1 + n
-# n = NoteContainer(chords.triad("G", "C"))
-# # b+n
-# b1+n
-# n = NoteContainer(chords.triad("A", "C"))
-# # b+n
-# b1+n
-
-fluidsynth.init("GeneralUser_GS_1.471/soundfont.sf2","alsa")
-# nc = NoteContainer(chords.triad("C", "C"))
-# # for x in xrange(1,128):
-# # 	fluidsynth.set_instrument(1, x)
-# # 	fluidsynth.play_Bar(b,1,5000)
-# # 	#nc + c
-# print(t)
-# fluidsynth.play_Track(t,1,100)
-MidiFileOut.write_Track("test.midi", t, 150)
 
 
-mid = mido.MidiFile("test.midi")
-# print(mid)
-
-# for msg in mid.play():
-# 	print(msg)
-
-### ACHANDO O BPM ###
-# print(mid.length)
-for msg in mid.tracks[0]:
-	# print(msg)
-	if(msg.type == "set_tempo"):
-		bpm = mido.bpm2tempo(msg.tempo) 
-		break
-
-# beat = 60.0 / bpm ### DURACAO DO BEAT EH 60 / BPM ACHADO ACIMA ###
-# print bpm, beat
-
-# bars = round(mid.length / beat / 4) ### QNTD DE COMPASSOS ###
-# print int(bars)
+# fluidsynth.init("GeneralUser_GS_1.471/soundfont.sf2","alsa")
 
 track = Track()
-
 
 c = Composition()
 c = MidiFileIn.MIDI_to_Composition("mel.mid")
 c2 = MidiFileIn.MIDI_to_Composition("test.midi")
-# print c.__class__.__name__
-# print c
-# print "\n"
+c3 = MidiFileIn.MIDI_to_Composition("gnr.midi")
+
 tra = Track()
 notes = list()
 bars = []
 for x in c2:
-	# print x
-	# print x.__class__.__name__
 	if(x.__class__.__name__ == "Composition"):
 		for track in x.tracks:
-			# print "Track:"
-			# print track
 			i = 0;
 			for bar in track.bars:
-				# print "bars:"
-				# bar.set_meter((3,4))
-				# print bar
-				# print bar.key.key
-				# print bar.meter
 				tra + bar
 				notesB = list()
 				for y in bar:
@@ -178,121 +125,73 @@ for x in c2:
 					if(len(NoteContainer(y[-1]).get_note_names()) > 0):
 						notes.append(NoteContainer(y[-1]).get_note_names()[0])
 						notesB.append(NoteContainer(y[-1]).get_note_names()[0])
-					# print bars
-					# print notesB
-					# print notes
 				bars.append(notesB)
 				i = i +1
-					# print y
-					# print "\n"
-				# print "\n"
-			# print "\n"
 			key = x.tracks[0][0].key.key
 			meter = x.tracks[0][0].meter
-
-# 	print "\n"
-
-# print key
-# print meter
-
-# print(c[0])
-#fluidsynth.play_Composition(c[0],1,100)
-
-# print c[1]
-# print c2[1]
-# print notes
 bars = bars[:-1]
-# print "bars: "
-# print bars
-# MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c[0], 100)
+
+
+### DESCOBRIR TONALIDADE MELODIA -> 1o GRAU ###
+key_and_mode = scales.determine(notes)[0]
+if key_and_mode != None:
+	key = key_and_mode.split(" ")[0]
+	mode = key_and_mode.split(" ")[1]
+	print (key, mode)
+else:
+	score = music21.converter.parse("test.midi")
+	parse = score.analyze('key')
+	key = parse.tonic.name
+	mode = parse.key.mode
+
+
+### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
+notesInt = []
+for note in notes:
+	notesInt.append(Harmonizer.note_to_int(note, key))
+
+### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
+# startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
+
+### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
+emissionProbs = {
+	'I':   {0: 0.5,   1: -0.2,  2: 0,     3: 0,     4: 0.35,  5: 0,     6: 0,     7: 0.35,  8: 0,     9: 0,     10: 0,     11: 0.1},
+	'ii':  {0: 0,     1: 0.1,   2: 0.5,   3: -0.2,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0.35,  10: 0,     11: 0},
+	'iii': {0: 0,     1: 0,     2: 0,     3: 0.1,   4: 0.5,   5: -0.2,  6: 0,     7: 0,     8: 0.35,  9: 0,     10: 0,     11: 0.35},
+	'IV':  {0: 0.35,  1: 0,     2: 0,     3: 0,     4: 0.1,   5: 0.5,   6: -0.2,  7: 0,     8: 0,     9: 0.35,  10: 0,     11: 0},
+	'V':   {0: 0,     1: 0,     2: 0.35,  3: 0,     4: 0,     5: 0,     6: 0.1,   7: 0.5,   8: -0.2,  9: 0,     10: 0,     11: 0.35},
+	'vi':  {0: 0,     1: 0.35,  2: 0,     3: 0,     4: 0.35,  5: 0,     6: 0,     7: 0,     8: 0.1,   9: 0.5,   10: -0.2,  11: 0},
+	'vii': {0: -0.2,  1: 0,     2: 0,     3: 0.35,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0,     10: 0.11,  11: 0.5}
+}
+
+
+states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
+
+chords = Harmonizer.harmonize(bars, notesInt, key, states, emissionProbs, (4,4), mode)
+print chords
+Harmonizer.reharmonize(chords)
+print chords
+print progressions.to_chords(chords, key)
+
+
+# MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c2[0], 100)
 # track = LilyPond.from_Track(tra)
 # LilyPond.to_pdf(track, "test")
 
-### DESCOBRIR PRIMEIRO ACORDE -> 1o GRAU ###
-score = music21.converter.parse("test.midi")
-key = score.analyze('key')
-# print(key.tonic.name, key.mode)
-
-major = key.mode == "major"
-
-### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
-
-### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
-startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
-
-### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
-
-notesInt = []
-for note in notes:
-	notesInt.append(Algo.note_to_int(note, key.tonic.name))
-# print notesInt
-
-statesMaj = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
-statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
-
-states = (1,2,3,4,5,6,7)
-
-majTransitionProbs = {
-	'I':   {'I': 0,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
-	'ii':  {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0.1428, 'V': 0.8572, 'vi': 0,      'vii': 0},
-	'iii': {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0.8572, 'vii': 0},
-	'IV':  {'I': 0.1428, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.8572, 'vi': 0,      'vii': 0},
-	'V':   {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0, 'vi': 0,      'vii': 0},
-	'vi':  {'I': 0,      'ii': 0.8572, 'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0},
-	'vii': {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0}
-}
-
-majEmissionProbs = {
-	'I':   {0: 0.378, 1: 0,     2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0.278, 8: 0,     9: 0,     10: 0,     11: 0.166},
-	'ii':  {0: 0,     1: 0.166, 2: 0.378, 3: 0,     4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
-	'iii': {0: 0,     1: 0,     2: 0,     3: 0.166, 4: 0.378, 5: 0,     6: 0,     7: 0,     8: 0.278, 9: 0,     10: 0,     11: 0.278},
-	'IV':  {0: 0.278, 1: 0,     2: 0,     3: 0,     4: 0.166, 5: 0.378, 6: 0,     7: 0,     8: 0,     9: 0.278, 10: 0,     11: 0},
-	'V':   {0: 0,     1: 0,     2: 0.278, 3: 0,     4: 0,     5: 0,     6: 0.166, 7: 0.378, 8: 0,     9: 0,     10: 0,     11: 0.278},
-	'vi':  {0: 0,     1: 0.278, 2: 0,     3: 0,     4: 0.278, 5: 0,     6: 0,     7: 0,     8: 0.166, 9: 0.378, 10: 0,     11: 0},
-	'vii': {0: 0,     1: 0,     2: 0,     3: 0.278, 4: 0,     5: 0,     6: 0.278, 7: 0,     8: 0,     9: 0,     10: 0.166, 11: 0.378}
-}
 
 
-# print states
-# Algo.algorithm(notesInt, statesMaj, startProb, majTransitionProbs, majEmissionProbs)
 
+# statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
 
-# for bar in bars:
-# 	print "bar:"
-# 	print bar
-	# print bar.determine_progression()
-
-
-chords = Algo.algorithm3(bars, notesInt, key.tonic.name, statesMaj, majEmissionProbs)
-print chords
-
-# minTransitionProbs = {
-# 	'i': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'ii': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'III': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'iv': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'V': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'VI': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': },
-# 	'VII': {'i': , 'ii': , 'III': , 'iv': , 'V': , 'VI': , 'VII': }
+# majTransitionProbs = {
+# 	'I':   {'I': 0,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
+# 	'ii':  {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0.1428, 'V': 0.8572, 'vi': 0,      'vii': 0},
+# 	'iii': {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0.8572, 'vii': 0},
+# 	'IV':  {'I': 0.1428, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.8572, 'vi': 0,      'vii': 0},
+# 	'V':   {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0, 'vi': 0,      'vii': 0},
+# 	'vi':  {'I': 0,      'ii': 0.8572, 'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0},
+# 	'vii': {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0}
 # }
-
-
-# minEmissionProbs = {
-# 	'i': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'ii': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'III': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'iv': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'V': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'VI': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: },
-# 	'VII': {1: , 2: , 3: , 4: , 5: , 6: , 7: , 8: , 9: , 10: ,11: , 12: }
-# }
-
-
-### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
-
-###	DEPOIS DECIDIR PARA QUAL ACORDE IR, LEVANDO EM CONTA O ACORDE ANTERIOR (CADEIA DE MARKOV) ###
-
-
 # b = Bar()
 # b2 = Bar('Ab', (3, 4))
 # n = NoteContainer(['A', 'C', 'E'])
