@@ -7,6 +7,7 @@ from mingus.containers import Bar
 from mingus.containers.instrument import Instrument, Piano, Guitar
 from mingus.containers import Track
 from mingus.containers import Composition
+import mingus.core.intervals as Intervals
 
 from mingus.midi import fluidsynth
 
@@ -28,11 +29,11 @@ def note_to_int(note, key):
 		return 12 - (Notes.note_to_int(key) - Notes.note_to_int(note)) 
 
 
-def harmonize(bars, melody, key, states, emit, time_sig, mode): 
+def harmonize(bars, melody, key, emit, time_sig, mode): 
 	prev = '-'
 	chords = []
 	# chords.append(Progressions.to_chords("I", key))
-	print melody
+	# print melody
 	(bpb, vb) = time_sig
 
 	### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
@@ -94,11 +95,11 @@ def firstChord(states):
 			return True
 	return False
 
-def avoid(mode):
-	if mode == "major":
-		return {
-		'I': 'iii',
-		}
+# def avoid(mode):
+# 	if mode == "major":
+# 		return {
+# 		'I': 'iii',
+# 		}
 
 def reharmonize(chords):
 	seed(1)
@@ -120,7 +121,6 @@ def export(melody_track, chords, key, time_sig, bpm):
 		t2 + b
 
 	c = Composition()
-	print melody_track.__class__.__name__
 	c.add_track(melody_track)
 	c.add_track(t2)
 
@@ -134,11 +134,77 @@ def export(melody_track, chords, key, time_sig, bpm):
 	sys.argv[2] = "--midi-file=" + file
 	sys.argv[3] = "--out-dir=" + sys.argv[3]
 
-	print sys.argv
 	midi.main()
-
 	os.remove(file)
 
-	# track = LilyPond.from_Composition(c)
-	# LilyPond.to_pdf(track, "test")
+def to_Sheet(chords, track, key, mode, file, out_dir, title,author):
+	track = LilyPond.from_Track(track)
+	track = track[1:-1]
+	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = \\relative c {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
+		harmonies = \\chordmode {''' + get_Shorthands(determine_chords(chords)) + '''}\n
+		\\score {\n
+		<<\n
+    	\\new ChordNames {\n 
+      	\\set chordChanges = ##t\n 
+      	\\harmonies\n 
+    	}\n 
+    	\\new Staff \\melody 
+ 		>>\n 
+  		\\layout{ } \n 
+  		\\midi { }\n 
+		}''' 
+		
+	path = out_dir + '/' + file.split('.')[0]
+	LilyPond.to_pdf(track, path)
+	os.remove(path + '.midi')
+
+def get_Shorthands(shorthand):
+	ret = ''
+	for short in shorthand:
+		ret += (short + ' ')
+	return ret
+
+def determine_chords(chords):
+	sh = []
+	for chord in chords:
+		res = {}
+		if len(chord) == 4:
+			if Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'minor':
+				res['seventh'] = ''
+			elif Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'major':
+				res['seventh'] = 'maj'
+		else:
+			res['seventh'] = '-'
+		if chord[0].find('#') != -1:
+			res['acc'] = 'is'
+			res['tonic'] = chord[0][0:(chord[0].find('#'))].lower()
+		elif chord[0].find('b') != -1:
+			res['acc'] = 'es'
+			res['tonic'] = chord[0][0:(chord[0].find('b'))].lower()
+		else:
+			res['acc'] = '-'
+			res['tonic'] = chord[0].lower()
+		if Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'minor':
+			res['fifth'] = 'dim'
+		elif Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'augmented':
+			res['fifth'] = 'aug'
+		else:
+			res['fifth'] = '-'
+		if Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'major':
+			res['mode'] = ''
+		elif Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'minor':
+			res['mode'] = 'min'
+		str = res['tonic']
+		if res['acc'] != '-':
+			str += res['acc']
+		str += '1:'
+		if res['fifth'] != '-':
+			str += res['fifth']
+			sh.append(str)
+			continue
+		str += res['mode']
+		if res['seventh'] != '-':
+			str += ('7' + res['seventh'])
+		sh.append(str)
+	return sh
 

@@ -47,8 +47,6 @@ def to_audio(sf2, midi_file, out_dir, out_type='wav', txt_file=None, append=True
             out_file = out_dir + '/' + line + '.' + out_type
 
     out_file = out_dir + '/' + fbase + '.' + out_type
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
     subprocess.call(['fluidsynth', '-T', out_type, '-F', out_file, '-ni', sf2, midi_file])
  
 

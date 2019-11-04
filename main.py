@@ -22,14 +22,16 @@ import mingus.extra.lilypond as LilyPond
 import algorithm as Harmonizer
 import music21
 import midiToAudio
-import sys
+import sys, os
 
 
 
 # fluidsynth.init("GeneralUser_GS_1.471/soundfont.sf2","alsa")
+file = sys.argv[2]
 
-c = Composition()
-c2 = MidiFileIn.MIDI_to_Composition(sys.argv[2])
+c2 = MidiFileIn.MIDI_to_Composition(file)
+
+out_dir = sys.argv[3]
 
 tra = Track()
 notes = list()
@@ -49,8 +51,6 @@ for x in c2:
 						notesB.append(NoteContainer(y[-1]).get_note_names()[0])
 				bars.append(notesB)
 				i = i +1
-			key = x.tracks[0][0].key.key
-			meter = x.tracks[0][0].meter
 bars = bars[:-1]
 
 bpm = c2[1]
@@ -60,7 +60,6 @@ key_and_mode = scales.determine(notes)[0]
 if key_and_mode != None:
 	key = key_and_mode.split(" ")[0]
 	mode = key_and_mode.split(" ")[1]
-	print (key, mode)
 else:
 	score = music21.converter.parse("test.midi")
 	parse = score.analyze('key')
@@ -90,38 +89,22 @@ emissionProbs = {
 
 states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 
-chords = Harmonizer.harmonize(bars, notesInt, key, states, emissionProbs, (4,4), mode)
+chords = Harmonizer.harmonize(bars, notesInt, key, emissionProbs, (4,4), mode)
 # print chords
-Harmonizer.reharmonize(chords)
-# print chords
+# Harmonizer.reharmonize(chords)
 chords = progressions.to_chords(chords, key)
+
+# Harmonizer.determine_chords(chords)
 
 Harmonizer.export(tra, chords, key, (4,4), bpm)
 
-# MidiFileOut.write_Composition("/home/gabriel.morais/Downloads/test3.midi", c2[0], 100)
-shorthand = []
-for chord in chords:
-	shorthand.append(Chords.determine_triad(chord, True))
-print shorthand 
-track = LilyPond.from_Track(tra)
-track = track[1:-1]
-track = 'melody = \\relative d {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
-		harmonies = \\chordmode {d a g d}\n
-		\\score {\n
-		<<\n
-    	\\new ChordNames {\n 
-      	\\set chordChanges = ##t\n 
-      	\\harmonies\n 
-    	}\n 
-    	\\new Staff \\melody 
- 		>>\n 
-  		\\layout{ } \n 
-  		\\midi { }\n 
-		}''' 
-		
-print track
-LilyPond.to_pdf(track, "test")
-
+if len(sys.argv) > 4:
+	title = sys.argv[4]
+if title == None: title = "Musical piece"
+if len(sys.argv) > 5:
+	author = sys.argv[5]
+if author == None: author = "Usuario"
+Harmonizer.to_Sheet(chords, tra, key, mode, file, out_dir, title, author)
 
 
 # statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
