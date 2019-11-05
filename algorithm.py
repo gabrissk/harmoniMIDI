@@ -29,7 +29,7 @@ def note_to_int(note, key):
 		return 12 - (Notes.note_to_int(key) - Notes.note_to_int(note)) 
 
 
-def harmonize(bars, melody, key, emit, time_sig, mode): 
+def harmonize(bars, key, emit, time_sig, mode): 
 	prev = '-'
 	chords = []
 	# chords.append(Progressions.to_chords("I", key))
@@ -44,16 +44,17 @@ def harmonize(bars, melody, key, emit, time_sig, mode):
 		states = {'I':0, 'ii':0, 'iii':0, 'IV':0, 'V':0, 'vi':0, 'vii':0}
 		# for note in bars[i]:
 		head = 1.1
-		if len(bars[i]) == 0:
-			chords.append(prev)
-
+		if bars[i][0][0] == None:
+			chords.append('bbbbbI')
+			continue
+			# prev = '-'
 		for j in range(0, len(bars[i])):
 			for state in states:
 				# Nota no primeiro tempo (sempre forte) tem mais peso
 				if j == 0:
-					states[state] += (emit[state][note_to_int(bars[i][j], key)] * head)
+					states[state] += (emit[state][note_to_int(bars[i][j][0], key)] * head)
 				else:
-					states[state] += (emit[state][note_to_int(bars[i][j], key)])
+					states[state] += (emit[state][note_to_int(bars[i][j][0], key)])
 		if i == 0:
 			if firstChord(states):
 				chords.append("I")
@@ -104,6 +105,7 @@ def firstChord(states):
 def reharmonize(chords):
 	seed(1)
 	for i in range(1, len(chords)-1):
+		if(chords[i] == 'bbbbbI'): continue
 		if randint(1,10) > 5:
 			subs = Progressions.substitute([chords[i]], 0)
 			for sub in subs:
@@ -117,7 +119,10 @@ def export(melody_track, chords, key, time_sig, bpm):
 	t2 = Track()
 	for i in range(0, len(chords)):
 		b = Bar(key, time_sig)
-		b.place_notes(NoteContainer(chords[i]), 1)
+		if len(chords[i][0]) > 5:
+			b.place_notes(None, 1)
+		else:
+			b.place_notes(NoteContainer(chords[i]), 1)
 		t2 + b
 
 	c = Composition()
@@ -139,8 +144,9 @@ def export(melody_track, chords, key, time_sig, bpm):
 
 def to_Sheet(chords, track, key, mode, file, out_dir, title,author):
 	track = LilyPond.from_Track(track)
+	print track
 	track = track[1:-1]
-	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = \\relative c {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
+	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
 		harmonies = \\chordmode {''' + get_Shorthands(determine_chords(chords)) + '''}\n
 		\\score {\n
 		<<\n
@@ -158,6 +164,8 @@ def to_Sheet(chords, track, key, mode, file, out_dir, title,author):
 	LilyPond.to_pdf(track, path)
 	os.remove(path + '.midi')
 
+	print track
+
 def get_Shorthands(shorthand):
 	ret = ''
 	for short in shorthand:
@@ -167,44 +175,47 @@ def get_Shorthands(shorthand):
 def determine_chords(chords):
 	sh = []
 	for chord in chords:
-		res = {}
-		if len(chord) == 4:
-			if Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'minor':
-				res['seventh'] = ''
-			elif Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'major':
-				res['seventh'] = 'maj'
+		if chord[0].endswith('bbb'):
+			sh.append('r1')
 		else:
-			res['seventh'] = '-'
-		if chord[0].find('#') != -1:
-			res['acc'] = 'is'
-			res['tonic'] = chord[0][0:(chord[0].find('#'))].lower()
-		elif chord[0].find('b') != -1:
-			res['acc'] = 'es'
-			res['tonic'] = chord[0][0:(chord[0].find('b'))].lower()
-		else:
-			res['acc'] = '-'
-			res['tonic'] = chord[0].lower()
-		if Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'minor':
-			res['fifth'] = 'dim'
-		elif Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'augmented':
-			res['fifth'] = 'aug'
-		else:
-			res['fifth'] = '-'
-		if Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'major':
-			res['mode'] = ''
-		elif Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'minor':
-			res['mode'] = 'min'
-		str = res['tonic']
-		if res['acc'] != '-':
-			str += res['acc']
-		str += '1:'
-		if res['fifth'] != '-':
-			str += res['fifth']
+			res = {}
+			if len(chord) == 4:
+				if Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'minor':
+					res['seventh'] = ''
+				elif Intervals.determine(chord[0], chord[3]).split(' ')[0] == 'major':
+					res['seventh'] = 'maj'
+			else:
+				res['seventh'] = '-'
+			if chord[0].find('#') != -1:
+				res['acc'] = 'is'
+				res['tonic'] = chord[0][0:(chord[0].find('#'))].lower()
+			elif chord[0].find('b') != -1:
+				res['acc'] = 'es'
+				res['tonic'] = chord[0][0:(chord[0].find('b'))].lower()
+			else:
+				res['acc'] = '-'
+				res['tonic'] = chord[0].lower()
+			if Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'minor':
+				res['fifth'] = 'dim'
+			elif Intervals.determine(chord[0], chord[2]).split(' ')[0] == 'augmented':
+				res['fifth'] = 'aug'
+			else:
+				res['fifth'] = '-'
+			if Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'major':
+				res['mode'] = ''
+			elif Intervals.determine(chord[0], chord[1]).split(' ')[0] == 'minor':
+				res['mode'] = 'min'
+			str = res['tonic']
+			if res['acc'] != '-':
+				str += res['acc']
+			str += '1:'
+			if res['fifth'] != '-':
+				str += res['fifth']
+				sh.append(str)
+				continue
+			str += res['mode']
+			if res['seventh'] != '-':
+				str += ('7' + res['seventh'])
 			sh.append(str)
-			continue
-		str += res['mode']
-		if res['seventh'] != '-':
-			str += ('7' + res['seventh'])
-		sh.append(str)
 	return sh
 
