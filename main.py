@@ -25,11 +25,11 @@ import sys, os
 
 
 
-file = sys.argv[2]
+file = sys.argv[1]
 
 c2 = MidiFileIn.MIDI_to_Composition(file)
 
-out_dir = sys.argv[3]
+out_dir = sys.argv[2]
 
 tra = Track()
 notes = list()
@@ -58,8 +58,7 @@ for x in c2:
 				bars.append(notesB)
 				i = i +1
 bars = bars[:-1]
-for bar in bars:
-	print bar
+
 bpm = c2[1]
 
 ### DESCOBRIR TONALIDADE MELODIA -> 1o GRAU ###
@@ -85,7 +84,7 @@ for note in notes:
 # startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
 
 ### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
-emissionProbs = {
+scores = {
 	'I':   {0: 0.5,   1: -0.2,  2: 0,     3: 0,     4: 0.35,  5: 0,     6: 0,     7: 0.35,  8: 0,     9: 0,     10: 0,     11: 0.1},
 	'ii':  {0: 0,     1: 0.1,   2: 0.5,   3: -0.2,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0.35,  10: 0,     11: 0},
 	'iii': {0: 0,     1: 0,     2: 0,     3: 0.1,   4: 0.5,   5: -0.2,  6: 0,     7: 0,     8: 0.35,  9: 0,     10: 0,     11: 0.35},
@@ -98,51 +97,18 @@ emissionProbs = {
 
 states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 
-chords = Harmonizer.harmonize(bars, key, emissionProbs, (4,4), mode)
-print chords
-Harmonizer.reharmonize(chords)
-print chords
+chords = Harmonizer.harmonize(bars, key, scores, (4,4), mode)
+Harmonizer.reharmonize(chords, scores, bars)
 chords = progressions.to_chords(chords, key)
 tra.bars = tra.bars[:-1]
 Harmonizer.export(tra, chords, key, (4,4), bpm)
 
-if len(sys.argv) > 4:
-	title = sys.argv[4]
+if len(sys.argv) > 3:
+	title = sys.argv[3]
 if title == None: title = "Musical piece"
-if len(sys.argv) > 5:
-	author = sys.argv[5]
+if len(sys.argv) > 4:
+	author = sys.argv[4]
 if author == None: author = "Usuario"
 
-Harmonizer.to_Sheet(chords, tra, key, mode, file, out_dir, title, author)
+Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, title, author)
 
-
-# statesMin = ('i', 'ii', 'III', 'iv', 'V', 'VI', 'VII')
-
-# majTransitionProbs = {
-# 	'I':   {'I': 0,  'ii': 0.166,  'iii': 0.166, 'IV': 0.166,  'V': 0.166,  'vi': 0.166,  'vii': 0.166},
-# 	'ii':  {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0.1428, 'V': 0.8572, 'vi': 0,      'vii': 0},
-# 	'iii': {'I': 0,      'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0.8572, 'vii': 0},
-# 	'IV':  {'I': 0.1428, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.8572, 'vi': 0,      'vii': 0},
-# 	'V':   {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0, 'vi': 0,      'vii': 0},
-# 	'vi':  {'I': 0,      'ii': 0.8572, 'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0},
-# 	'vii': {'I': 0.8572, 'ii': 0,      'iii': 0,     'IV': 0,      'V': 0.1428, 'vi': 0,      'vii': 0}
-# }
-# b = Bar()
-# b2 = Bar('Ab', (3, 4))
-# n = NoteContainer(['A', 'C', 'E'])
-# t = Track()
-# b + n
-# b + []
-# b + n
-# b + n
-# b2 + n
-# b2 + n
-# b2 + []
-# t + b
-# t + b
-# t.name = 'Track Name Test'
-# MidiFileOut.write_NoteContainer('/home/gabriel.morais/Downloads/test1.mid', n)
-# MidiFileOut.write_Bar('/home/gabriel.morais/Downloads/test2.mid', b)
-# MidiFileOut.write_Bar('/home/gabriel.morais/Downloads/test3.mid', b, 200)
-# MidiFileOut.write_Bar('/home/gabriel.morais/Downloads/test4.mid', b2, 200, 2)
-# MidiFileOut.write_Track('/home/gabriel.morais/Downloads/test5.mid', t, 120)

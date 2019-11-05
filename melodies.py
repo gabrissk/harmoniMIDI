@@ -58,8 +58,8 @@ b1.place_notes(Note("B-3"), 4)
 t + b1
 b1 = Bar(None, (4,4))
 b1.place_notes(Note("A-3"), 2)
-b1.place_notes(Note("A-3"), 2)
-# b1.place_rest(2)
+# b1.place_notes(Note("A-3"), 2)
+b1.place_rest(2)
 # b1.place_rest(2)
 # print b1
 t + b1
@@ -82,7 +82,7 @@ b1.place_notes(Note("G-3"), 4)
 b1.place_notes(Note("C#-3"), 4)
 t+b1
 b1 = Bar(None, (4,4))
-b1.place_notes(Note("D-3"), 2)
+b1.place_notes(Note("E-3"), 2)
 b1.place_notes(Note("D-3"), 2)
 t+b1
 

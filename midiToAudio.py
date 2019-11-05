@@ -72,13 +72,11 @@ def main(args = sys.argv):
     try:
         if not is_fsynth_installed():
             raise Exception('Unable to find \'fluidsynth\' in the path')
-        
-        opts, args = getopt.getopt(sys.argv[1:], None, ['sf2-dir=', 'midi-file=', 'out-dir=', 'type=', 'replace'])
+        print sys.argv
+        opts, args = getopt.getopt(sys.argv[1:], None, ['midi-file=', 'out-dir=', 'type=', 'replace'])
         sf2files, midifile, textfiles, out_dir, out_type, append = [], None, [], None, 'wav', True
         for o, v in opts:
-            if o == '--sf2-dir':
-                sf2files = glob.glob(v + '/*.[sS][fF]2')
-            elif o == '--midi-file':
+            if o == '--midi-file':
                 midifile = v
                 textfiles = glob.glob(v + '/*.[tT][xX][tT]')
                 if not out_dir:
@@ -89,6 +87,8 @@ def main(args = sys.argv):
                 out_type = v
             elif o == '--replace':
                 append = False
+
+        sf2files = glob.glob('Sounds' + '/*.[sS][fF]2')
                 
         if not sf2files:
             raise Exception('A --sf2-dir directory must be specified where at least one .sf2 file exists')

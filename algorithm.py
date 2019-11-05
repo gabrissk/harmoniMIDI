@@ -13,9 +13,7 @@ from mingus.midi import fluidsynth
 
 from mingus.midi import midi_file_in as MidiFileIn
 from mingus.midi import midi_file_out as MidiFileOut
-from random import seed
-from random import randint
-from random import shuffle
+import random
 
 import mingus.extra.lilypond as LilyPond
 
@@ -32,8 +30,6 @@ def note_to_int(note, key):
 def harmonize(bars, key, emit, time_sig, mode): 
 	prev = '-'
 	chords = []
-	# chords.append(Progressions.to_chords("I", key))
-	# print melody
 	(bpb, vb) = time_sig
 
 	### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
@@ -60,12 +56,14 @@ def harmonize(bars, key, emit, time_sig, mode):
 				chords.append("I")
 				prev = ("I")
 				continue
+		if i == len(bars)-1:
+			if lastChord(states):
+				chords.append('I')
+				continue
 		states[prev] = 0
 		curr = bestChord(states, prev)
-		# print curr
 		chords.append(curr)
 		prev = curr
-		# print "\n"
 	return chords
 
 cadences = {
@@ -89,6 +87,12 @@ def bestChord(states, prev):
 	return best[0]
 
 def firstChord(states):
+	return checkTonic(states)
+
+def lastChord(states):
+	return checkTonic(states)
+
+def checkTonic(states):
 	sorted_states = sorted(states, key=(lambda key: states[key]))
 	ln = len(sorted_states)
 	for i in range(ln-1, ln-4, -1):
@@ -102,16 +106,22 @@ def firstChord(states):
 # 		'I': 'iii',
 # 		}
 
-def reharmonize(chords):
-	seed(1)
+def reharmonize(chords, scores, bars):
 	for i in range(1, len(chords)-1):
 		if(chords[i] == 'bbbbbI'): continue
-		if randint(1,10) > 5:
+		if random.random() > 0.5:
 			subs = Progressions.substitute([chords[i]], 0)
-			for sub in subs:
-				if sub != chords[i-1] and sub != chords[i+1]:
+			# print chords[i]
+			# print subs
+			while 1:	
+				sub = random.choice(subs)
+				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(chords[i], sub, scores, bars) > 0.5:
 					chords[i] = sub
 					break
+			# for sub in subs:
+			# 	if sub != chords[i-1] and sub != chords[i+1]:
+			# 		chords[i] = sub
+			# 		break
 
 def export(melody_track, chords, key, time_sig, bpm):
 	i = Instrument()
@@ -129,29 +139,29 @@ def export(melody_track, chords, key, time_sig, bpm):
 	c.add_track(melody_track)
 	c.add_track(t2)
 
-	if not os.path.exists(sys.argv[3]):
-		os.makedirs(sys.argv[3])
-	MidiFileOut.write_Composition(sys.argv[3]+'/'+sys.argv[2], c, bpm)
+	if not os.path.exists(sys.argv[2]):
+		os.makedirs(sys.argv[2])
+	MidiFileOut.write_Composition(sys.argv[2]+'/'+sys.argv[1], c, bpm)
 
-	file = sys.argv[3] + '/' + sys.argv[2]
+	file = sys.argv[2] + '/' + sys.argv[1]
 
-	sys.argv[1] = "--sf2-dir=" + sys.argv[1]
-	sys.argv[2] = "--midi-file=" + file
-	sys.argv[3] = "--out-dir=" + sys.argv[3]
+	# sys.argv[1] = "--sf2-dir=" + sys.argv[1]
+	sys.argv[1] = "--midi-file=" + file
+	sys.argv[2] = "--out-dir=" + sys.argv[2]
 
 	midi.main()
-	os.remove(file)
+	if os.path.exists(file):
+		os.remove(file)
 
-def to_Sheet(chords, track, key, mode, file, out_dir, title,author):
+def to_Sheet(bars, chords, track, key, mode, file, out_dir, title,author):
 	track = LilyPond.from_Track(track)
-	print track
 	track = track[1:-1]
 	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
 		harmonies = \\chordmode {''' + get_Shorthands(determine_chords(chords)) + '''}\n
 		\\score {\n
 		<<\n
     	\\new ChordNames {\n 
-      	\\set chordChanges = ##t\n 
+      	\\set chordChanges = ##t\n''' + determine_clef(bars)+ '''
       	\\harmonies\n 
     	}\n 
     	\\new Staff \\melody 
@@ -162,9 +172,9 @@ def to_Sheet(chords, track, key, mode, file, out_dir, title,author):
 		
 	path = out_dir + '/' + file.split('.')[0]
 	LilyPond.to_pdf(track, path)
-	os.remove(path + '.midi')
+	if os.path.exists(path + '.midi'):	
+		os.remove(path + '.midi')
 
-	print track
 
 def get_Shorthands(shorthand):
 	ret = ''
@@ -219,3 +229,16 @@ def determine_chords(chords):
 			sh.append(str)
 	return sh
 
+def determine_clef(bars):
+	total = 0
+	n = 0
+	for bar in bars:
+		for note in bar:
+			total += note[1]
+			n += 1
+	octave = int(round(float(total) / n))
+
+	return '\\clef treble' if octave >= 4 else '\\clef bass'  
+
+def score(chord, sub, scores, bars):
+	return 1
