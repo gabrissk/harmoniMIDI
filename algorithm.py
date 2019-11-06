@@ -145,7 +145,6 @@ def export(melody_track, chords, key, time_sig, bpm):
 
 	file = sys.argv[2] + '/' + sys.argv[1]
 
-	# sys.argv[1] = "--sf2-dir=" + sys.argv[1]
 	sys.argv[1] = "--midi-file=" + file
 	sys.argv[2] = "--out-dir=" + sys.argv[2]
 

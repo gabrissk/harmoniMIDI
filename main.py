@@ -4,6 +4,7 @@ import mingus.core.intervals as intervals
 import mingus.core.scales as scales
 import mingus.core.value as value
 import mingus.core.progressions as progressions
+import mingus.core.keys as keys
 
 from mingus.containers import Note
 from mingus.containers import NoteContainer
@@ -70,8 +71,14 @@ else:
 	score = music21.converter.parse("test.midi")
 	parse = score.analyze('key')
 	key = parse.tonic.name
-	mode = parse.key.mode
+	mode = parse.mode
+print (key, mode)
 
+if mode == 'harmonic':
+	key = keys.relative_major(key.lower())
+	mode = 'major'
+
+print key,mode
 
 ### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
 notesInt = []
@@ -95,7 +102,7 @@ scores = {
 }
 
 
-states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
+# states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 
 chords = Harmonizer.harmonize(bars, key, scores, (4,4), mode)
 Harmonizer.reharmonize(chords, scores, bars)

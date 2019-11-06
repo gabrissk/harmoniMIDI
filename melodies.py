@@ -88,17 +88,36 @@ t+b1
 
 MidiFileOut.write_Track("test.midi", t, 150)
 
-# b2 = Bar(None, (4,4))
-# b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
-# t1 = Track()
-# t1+b2
-# b2 = Bar(None, (4,4))
-# b2.place_notes(NoteContainer(chords.triad("E", "D")), 1)
-# t1+b2
-# b2 = Bar(None, (4,4))
-# b2.place_notes(NoteContainer(chords.triad("G", "D")), 1)
-# t1+b2
-# b2 = Bar(None, (4,4))
-# b2.place_notes(NoteContainer(chords.triad("D", "D")), 1)
-# t1+b2
-# MidiFileOut.write_Track("out.midi", t1, 150)
+t = Track()
+t.name = "Teste"
+
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("E-3"), 4)
+b1.place_notes(Note("F#-3"), 4)
+b1.place_notes(Note("G-3"), 4)
+b1.place_notes(Note("E-3"), 4)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("F#-3"), 4)
+b1.place_notes(Note("B-2"), 4)
+b1.place_notes(Note("B-2"), 4)
+b1.place_notes(Note("B-3"), 8)
+b1.place_notes(Note("A-3"), 8)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("G-3"), 4)
+b1.place_notes(Note("A-3"), 4)
+b1.place_notes(Note("B-3"), 4)
+b1.place_notes(Note("G-3"), 4)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("A-3"), 4)
+b1.place_notes(Note("B-3"), 4)
+b1.place_notes(Note("C-4"), 4)
+b1.place_notes(Note("D#-3"), 4)
+t + b1
+b1 = Bar(None, (4,4))
+b1.place_notes(Note("E-3"), 1)
+t+b1
+
+MidiFileOut.write_Track("test.midi", t, 150)

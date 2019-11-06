@@ -47,6 +47,8 @@ def to_audio(sf2, midi_file, out_dir, out_type='wav', txt_file=None, append=True
             out_file = out_dir + '/' + line + '.' + out_type
 
     out_file = out_dir + '/' + fbase + '.' + out_type
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     subprocess.call(['fluidsynth', '-T', out_type, '-F', out_file, '-ni', sf2, midi_file])
  
 
@@ -72,7 +74,6 @@ def main(args = sys.argv):
     try:
         if not is_fsynth_installed():
             raise Exception('Unable to find \'fluidsynth\' in the path')
-        print sys.argv
         opts, args = getopt.getopt(sys.argv[1:], None, ['midi-file=', 'out-dir=', 'type=', 'replace'])
         sf2files, midifile, textfiles, out_dir, out_type, append = [], None, [], None, 'wav', True
         for o, v in opts:
