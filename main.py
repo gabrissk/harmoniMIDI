@@ -58,8 +58,9 @@ for x in c2:
 						notesB.append((y[2][0].name, y[2][0].octave))
 				bars.append(notesB)
 				i = i +1
-bars = bars[:-1]
 
+bars = bars[:-1]
+tra.bars = tra.bars[:-1]
 bpm = c2[1]
 
 ### DESCOBRIR TONALIDADE MELODIA -> 1o GRAU ###
@@ -67,28 +68,22 @@ key_and_mode = scales.determine(notes)[0]
 if key_and_mode != None:
 	key = key_and_mode.split(" ")[0]
 	mode = key_and_mode.split(" ")[1]
-else:
-	score = music21.converter.parse("test.midi")
-	parse = score.analyze('key')
-	key = parse.tonic.name
-	mode = parse.mode
-print (key, mode)
 
-if mode == 'harmonic':
+score = music21.converter.parse(sys.argv[1])
+parse = score.analyze('key')
+keym = parse.tonic.name
+modem = parse.mode
+
+flag = False
+if mode == ('harmonic' or 'minor'):
 	key = keys.relative_major(key.lower())
 	mode = 'major'
+	flag = True
+elif mode != modem:
+	Flag = True
 
-print key,mode
+# print key,mode,keym, modem
 
-### TRANSFORMAR AS NOTAS EM NUMEROS REFERENTES A TONALIDADE
-notesInt = []
-for note in notes:
-	notesInt.append(Harmonizer.note_to_int(note, key))
-
-
-
-### PREENCHER VETOR DE PROBABILIDADES INICIAIS (1 NO PRIMEIRO ACORDE, 0 NO RESTO) ###
-# startProb = {"I": 1, "ii": 0, "iii": 0, "IV": 0, "V": 0, "vi": 0, "vii": 0}
 
 ### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
 scores = {
@@ -101,13 +96,29 @@ scores = {
 	'vii': {0: -0.2,  1: 0,     2: 0,     3: 0.35,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0,     10: 0.11,  11: 0.5}
 }
 
+scoresMin = {
+	'I':   {0: 0,     1: 0.35,  2: 0,     3: 0,     4: 0.35,  5: 0,     6: 0,     7: 0,     8: 0.1,   9: 0.5,   10: -0.2,  11: 0},
+	'ii':  {0: -0.2,  1: 0,     2: 0,     3: 0.35,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0,     10: 0.11,  11: 0.5},
+	'iii': {0: 0.5,   1: -0.2,  2: 0,     3: 0,     4: 0.35,  5: 0,     6: 0,     7: 0.35,  8: 0,     9: 0,     10: 0,     11: 0.1},
+	'IV':  {0: 0,     1: 0.1,   2: 0.5,   3: -0.2,  4: 0,     5: 0,     6: 0.35,  7: 0,     8: 0,     9: 0.35,  10: 0,     11: 0},
+	'V':   {0: 0,     1: 0,     2: 0,     3: 0.1,   4: 0.5,   5: -0.2,  6: 0,     7: 0,     8: 0.35,  9: 0,     10: 0,     11: 0.35},
+	'vi':  {0: 0.35,  1: 0,     2: 0,     3: 0,     4: 0.1,   5: 0.5,   6: -0.2,  7: 0,     8: 0,     9: 0.35,  10: 0,     11: 0},
+	'vii': {0: 0,     1: 0,     2: 0.35,  3: 0,     4: 0,     5: 0,     6: 0.1,   7: 0.5,   8: -0.2,  9: 0,     10: 0,     11: 0.35}
+}
+
+if flag:
+	print 'flag'
+	scores = scoresMin
 
 # states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
-
-chords = Harmonizer.harmonize(bars, key, scores, (4,4), mode)
-Harmonizer.reharmonize(chords, scores, bars)
+modeToPass = 'minor' if flag else 'major'
+chords = Harmonizer.harmonize(bars, key, scores, (4,4), modeToPass)
+Harmonizer.reharmonize(chords, scores, bars, key, modeToPass)
+print chords
 chords = progressions.to_chords(chords, key)
-tra.bars = tra.bars[:-1]
+# if flag:
+	# Harmonizer.raise_fifth(chords, key)
+
 Harmonizer.export(tra, chords, key, (4,4), bpm)
 
 if len(sys.argv) > 3:

@@ -8,6 +8,7 @@ from mingus.containers.instrument import Instrument, Piano, Guitar
 from mingus.containers import Track
 from mingus.containers import Composition
 import mingus.core.intervals as Intervals
+import mingus.core.keys as Keys
 
 from mingus.midi import fluidsynth
 
@@ -31,7 +32,10 @@ def harmonize(bars, key, emit, time_sig, mode):
 	prev = '-'
 	chords = []
 	(bpb, vb) = time_sig
-
+	if mode == 'major':
+		ch = 'I'
+	else:
+		ch = 'vi'
 	### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
 	###	DEPOIS DECIDIR PARA QUAL ACORDE IR, LEVANDO EM CONTA O ACORDE ANTERIOR (CADEIA DE MARKOV) ###
 	# for bar in bars:
@@ -52,13 +56,13 @@ def harmonize(bars, key, emit, time_sig, mode):
 				else:
 					states[state] += (emit[state][note_to_int(bars[i][j][0], key)])
 		if i == 0:
-			if firstChord(states):
-				chords.append("I")
-				prev = ("I")
+			if firstChord(states, ch):
+				chords.append(ch)
+				prev = (ch)
 				continue
 		if i == len(bars)-1:
-			if lastChord(states):
-				chords.append('I')
+			if lastChord(states, ch):
+				chords.append(ch)
 				continue
 		states[prev] = 0
 		curr = bestChord(states, prev)
@@ -86,17 +90,17 @@ def bestChord(states, prev):
 				print best
 	return best[0]
 
-def firstChord(states):
-	return checkTonic(states)
+def firstChord(states, ch):
+	return checkTonic(states, ch)
 
-def lastChord(states):
-	return checkTonic(states)
+def lastChord(states, ch):
+	return checkTonic(states, ch)
 
-def checkTonic(states):
+def checkTonic(states, sh):
 	sorted_states = sorted(states, key=(lambda key: states[key]))
 	ln = len(sorted_states)
 	for i in range(ln-1, ln-4, -1):
-		if sorted_states[i] == 'I':
+		if sorted_states[i] == sh:
 			return True
 	return False
 
@@ -106,7 +110,7 @@ def checkTonic(states):
 # 		'I': 'iii',
 # 		}
 
-def reharmonize(chords, scores, bars):
+def reharmonize(chords, scores, bars, key, mode):
 	for i in range(1, len(chords)-1):
 		if(chords[i] == 'bbbbbI'): continue
 		if random.random() > 0.5:
@@ -115,7 +119,7 @@ def reharmonize(chords, scores, bars):
 			# print subs
 			while 1:	
 				sub = random.choice(subs)
-				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(chords[i], sub, scores, bars) > 0.5:
+				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(chords[i], sub, scores, bars, key, mode) > 0.5:
 					chords[i] = sub
 					break
 			# for sub in subs:
@@ -239,5 +243,24 @@ def determine_clef(bars):
 
 	return '\\clef treble' if octave >= 4 else '\\clef bass'  
 
-def score(chord, sub, scores, bars):
-	return 1
+#### TODO #### Comparar as notas de sub com as notas do compasso referente e tambem ao grau do acorde original
+def score(chord, sub, scores, bars, key, mode):
+	score = 0
+	print chord, sub
+	if mode == 'minor':
+		key = Keys.relative_minor(key)
+	print key
+	sub = Progressions.to_chords(sub, key)[0]
+	print sub
+	for note in sub:
+		score += scores[chord][note_to_int(note, key)]
+	print score
+	return score
+
+def raise_fifth(chords, maj_key):
+	print chords
+	key = Keys.relative_minor(maj_key)
+	for chord in chords:
+		if chord == (Chords.dominant(key) or Chords.dominant7(key)):
+			chord[1] = Notes.reduce_accidentals(Notes.augment(chord[1]))
+	print chords
