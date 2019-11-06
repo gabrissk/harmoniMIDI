@@ -19,7 +19,7 @@ from mingus.midi import midi_file_in as MidiFileIn
 from mingus.midi import midi_file_out as MidiFileOut
 import mido
 import mingus.extra.lilypond as LilyPond
-import algorithm as Harmonizer
+import harmonizer as Harmonizer
 import music21
 import midiToAudio
 import sys, os
@@ -82,7 +82,6 @@ if mode == ('harmonic' or 'minor'):
 elif mode != modem:
 	Flag = True
 
-# print key,mode,keym, modem
 
 
 ### BOLAR TRANSICOES DE ACORDES/NOTAS/GRAUS ###
@@ -107,14 +106,13 @@ scoresMin = {
 }
 
 if flag:
-	print 'flag'
 	scores = scoresMin
 
-# states = ('I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii')
 modeToPass = 'minor' if flag else 'major'
 chords = Harmonizer.harmonize(bars, key, scores, (4,4), modeToPass)
+# print chords
 Harmonizer.reharmonize(chords, scores, bars, key, modeToPass)
-print chords
+# print chords
 chords = progressions.to_chords(chords, key)
 # if flag:
 	# Harmonizer.raise_fifth(chords, key)
