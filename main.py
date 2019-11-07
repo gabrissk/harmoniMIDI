@@ -28,8 +28,6 @@ import Tkinter as tk
 
 def main(file, exp, sheet):
 
-	# file = sys.argv[1]
-
 	c2 = MidiFileIn.MIDI_to_Composition(file)
 
 	out_dir = 'out/'
@@ -181,23 +179,6 @@ def init(fileN):
 	sheet = True if CheckVar2.get() == 1 else False
 	main(fileN, exp, sheet)
 
-# var = IntVar()
-
-# def sel():
-#    selection = "You selected the option " + str(var.get())
-#    label.config(text = selection)
-
-# r1 = tk.Radiobutton(root, text="teste1", variable=var, value=1, command=sel)
-# r1.pack(anchor= W)
-# r2 = tk.Radiobutton(root, text="teste2", variable=var, value=2, command=sel)
-# r2.pack(anchor= W)
-
-# label = Label(root)
-# label.pack()
-    
 
 root.mainloop()
 
-
-# if __name__ == '__main__':	
-# 	main1()
