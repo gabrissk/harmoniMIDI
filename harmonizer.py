@@ -121,7 +121,7 @@ def reharmonize(chords, scores, bars, key, mode):
 					chords[i] = sub
 					break
 
-def export(melody_track, chords, key, time_sig, bpm):
+def export(melody_track, chords, key, time_sig, bpm, file):
 	i = Instrument()
 	i.instrument_nr = 1
 	t2 = Track()
@@ -137,14 +137,19 @@ def export(melody_track, chords, key, time_sig, bpm):
 	c.add_track(melody_track)
 	c.add_track(t2)
 
-	if not os.path.exists(sys.argv[2]):
-		os.makedirs(sys.argv[2])
-	MidiFileOut.write_Composition(sys.argv[2]+'/'+sys.argv[1], c, bpm)
+	out_dir = 'out/'
 
-	file = sys.argv[2] + '/' + sys.argv[1]
+	if not os.path.exists(out_dir):
+		os.makedirs(out_dir)
+	MidiFileOut.write_Composition(out_dir+'/'+file, c, bpm)
+
+	file = out_dir + '/' + file
+
+	sys.argv.append('')
+	sys.argv.append('')
 
 	sys.argv[1] = "--midi-file=" + file
-	sys.argv[2] = "--out-dir=" + sys.argv[2]
+	sys.argv[2] = "--out-dir=" + out_dir
 
 	midi.main()
 	if os.path.exists(file):
