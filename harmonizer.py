@@ -115,19 +115,13 @@ def reharmonize(chords, scores, bars, key, mode):
 		if(chords[i] == 'bbbbbI'): continue
 		if random.random() > 0.5:
 			subs = Progressions.substitute([chords[i]], 0)
-			# print chords[i]
-			# print subs
-			while 1:	
+			for j in range(0,5):	
 				sub = random.choice(subs)
-				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(chords[i], sub, scores, bars, key, mode) > 0.5:
+				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i]):
 					chords[i] = sub
 					break
-			# for sub in subs:
-			# 	if sub != chords[i-1] and sub != chords[i+1]:
-			# 		chords[i] = sub
-			# 		break
 
-def export(melody_track, chords, key, time_sig, bpm):
+def export(melody_track, chords, key, time_sig, bpm, file):
 	i = Instrument()
 	i.instrument_nr = 1
 	t2 = Track()
@@ -143,14 +137,19 @@ def export(melody_track, chords, key, time_sig, bpm):
 	c.add_track(melody_track)
 	c.add_track(t2)
 
-	if not os.path.exists(sys.argv[2]):
-		os.makedirs(sys.argv[2])
-	MidiFileOut.write_Composition(sys.argv[2]+'/'+sys.argv[1], c, bpm)
+	out_dir = 'out/'
 
-	file = sys.argv[2] + '/' + sys.argv[1]
+	if not os.path.exists(out_dir):
+		os.makedirs(out_dir)
+	MidiFileOut.write_Composition(out_dir+'/'+file, c, bpm)
+
+	file = out_dir + '/' + file
+
+	sys.argv.append('')
+	sys.argv.append('')
 
 	sys.argv[1] = "--midi-file=" + file
-	sys.argv[2] = "--out-dir=" + sys.argv[2]
+	sys.argv[2] = "--out-dir=" + out_dir
 
 	midi.main()
 	if os.path.exists(file):
@@ -243,19 +242,14 @@ def determine_clef(bars):
 
 	return '\\clef treble' if octave >= 4 else '\\clef bass'  
 
-#### TODO #### Comparar as notas de sub com as notas do compasso referente e tambem ao grau do acorde original
-def score(chord, sub, scores, bars, key, mode):
-	score = 0
-	print chord, sub
-	if mode == 'minor':
-		key = Keys.relative_minor(key)
-	print key
-	sub = Progressions.to_chords(sub, key)[0]
-	print sub
-	for note in sub:
-		score += scores[chord][note_to_int(note, key)]
-	print score
-	return score
+def score(sub, bar):
+	if len(sub) < 4:
+		return True
+	else:
+		for note in bar:
+			if sub[3] == note:
+				return True
+	return False
 
 def raise_fifth(chords, maj_key):
 	print chords
