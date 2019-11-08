@@ -25,7 +25,9 @@ import harmonizer as Harmonizer
 import midiToAudio
 import sys, os
 from Tkinter import *
-# import Tkinter as tk
+from ttk import Progressbar
+import time
+import threading
 
 def main(file, exp, sheet):
 
@@ -110,14 +112,27 @@ def main(file, exp, sheet):
 	modeToPass = 'minor' if flag else 'major'
 	chords = Harmonizer.harmonize(bars, key, scores, (4,4), modeToPass)
 
-	label1 = Label(root, text='Harmonizando')
+	# root.after(1000)
+	label1 = Label(root, text='Harmonizando!')
 	label1.config(font=('helvetica', 14))
 	canvas1.create_window(200, 100, window=label1)
-	# while 1:
 
 
-	root.after(6000)
+	pg = Progressbar(root, orient=HORIZONTAL,length=100,  mode='determinate')
+	pg['maximum'] = 230
+	pg['value'] = 0
+	canvas1.create_window(200, 140, window=pg)
+	
+	updt('')
+	label4 = Label(root, textvariable = labelText)
+	canvas1.create_window(200, 160, window=label4)
 
+	update(pg)
+
+	fluidsynth.init("Sounds/soundfont.sf2", "alsa")
+
+	button1 = Button(text='Ouvir resultado', command=lambda: play(tra, chords, bpm), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+	canvas1.create_window(200, 200, window=button1)
 
 	# print chords
 	Harmonizer.reharmonize(chords, scores, bars, key, modeToPass)
@@ -137,10 +152,49 @@ def main(file, exp, sheet):
 	if sheet:
 		Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, "Musica", "Eu")
 
+def play(melody, chords, bpm):
+	t2 = Track()
+	for i in range(0, len(chords)):
+		b = Bar(None, (4,4))
+		if len(chords[i][0]) > 5:
+			b.place_notes(None, 1)
+		else:
+			b.place_notes(NoteContainer(chords[i]), 1)
+		t2 + b
+	fluidsynth.pan(1, 25)
+	fluidsynth.pan(2, 120)
+	fluidsynth.main_volume(2, 50)
+	fluidsynth.play_Tracks([melody, t2], [1,2], bpm)
+
+
+def sleep(n):
+	i = 0
+	while i < n:
+		i += 0.1
+
+def update(pg):
+	global process
+	process += 1
+	pg['value'] = process
+	# pg.step(process)
+	root.update()
+	if pg['value'] >= pg['maximum']:
+		updt("Sucesso!")
+		sleep(500000)
+		return 
+	i = 0;
+	sleep(10000)
+	update(pg)
+
+process = 0
 
 root= Tk()
 root.title('HarmoniMIDI')
 root.resizable(False, False)
+
+pg = Progressbar(root, orient=HORIZONTAL,length=100,  mode='determinate')
+pg['maximum'] = 100
+pg['value'] = 0
 
 canvas1 = Canvas(root, width = 400, height = 330,  relief = 'raised')
 canvas1.pack()
