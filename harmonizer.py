@@ -111,13 +111,15 @@ def checkTonic(states, sh):
 # 		}
 
 def reharmonize(chords, scores, bars, key, mode):
+	if mode == 'minor':
+		key = Keys.relative_minor(key)
 	for i in range(1, len(chords)-1):
 		if(chords[i] == 'bbbbbI'): continue
 		if random.random() > 0.5:
 			subs = Progressions.substitute([chords[i]], 0)
 			for j in range(0,5):	
 				sub = random.choice(subs)
-				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i]):
+				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i], key):
 					chords[i] = sub
 					break
 
@@ -141,9 +143,10 @@ def export(melody_track, chords, key, time_sig, bpm, file):
 
 	if not os.path.exists(out_dir):
 		os.makedirs(out_dir)
-	MidiFileOut.write_Composition(out_dir+'/'+file, c, bpm)
+	mid = file.split('/')[-1]
+	MidiFileOut.write_Composition(out_dir+'/'+mid, c, bpm)
 
-	file = out_dir + '/' + file
+	file = out_dir + '/' + mid
 
 	sys.argv.append('')
 	sys.argv.append('')
@@ -171,7 +174,8 @@ def to_Sheet(bars, chords, track, key, mode, file, out_dir, title,author):
   		\\layout{ } \n 
   		\\midi { }\n 
 		}''' 
-		
+
+	file = file.split('/')[-1]
 	path = out_dir + '/' + file.split('.')[0]
 	LilyPond.to_pdf(track, path)
 	if os.path.exists(path + '.midi'):	
@@ -242,7 +246,8 @@ def determine_clef(bars):
 
 	return '\\clef treble' if octave >= 4 else '\\clef bass'  
 
-def score(sub, bar):
+def score(sub, bar, key):
+	sub = Progressions.to_chords([sub], key)[0]
 	if len(sub) < 4:
 		return True
 	else:

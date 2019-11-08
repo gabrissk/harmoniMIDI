@@ -29,13 +29,14 @@ from ttk import Progressbar
 import time
 import threading
 
+
 def main(file, exp, sheet):
 
 	## Extrair nome do arquivo != path ##
 
 	c2 = MidiFileIn.MIDI_to_Composition(file)
 
-	out_dir = 'out/'
+	out_dir = 'out'
 
 	tra = Track()
 	notes = list()
@@ -142,14 +143,13 @@ def main(file, exp, sheet):
 	if exp: 
 		Harmonizer.export(tra, chords, key, (4,4), bpm, file)
 
-	# if len(sys.argv) > 3:
-	# 	title = sys.argv[3]
-	# if title == None: title = "Musical piece"
-	# if len(sys.argv) > 4:
-	# 	author = sys.argv[4]
-	# if author == None: author = "Usuario"
-
 	if sheet:
+		# if len(sys.argv) > 3:
+		# 	title = sys.argv[3]
+		# if title == None: title = "Musical piece"
+		# if len(sys.argv) > 4:
+		# 	author = sys.argv[4]
+		# if author == None: author = "Usuario"
 		Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, "Musica", "Eu")
 
 def play(melody, chords, bpm):
@@ -176,7 +176,6 @@ def update(pg):
 	global process
 	process += 1
 	pg['value'] = process
-	# pg.step(process)
 	root.update()
 	if pg['value'] >= pg['maximum']:
 		updt("Sucesso!")
@@ -260,4 +259,3 @@ def init(fileN):
 
 
 root.mainloop()
-
