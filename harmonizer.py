@@ -104,22 +104,16 @@ def checkTonic(states, sh):
 			return True
 	return False
 
-# def avoid(mode):
-# 	if mode == "major":
-# 		return {
-# 		'I': 'iii',
-# 		}
-
 def reharmonize(chords, scores, bars, key, mode):
 	if mode == 'minor':
-		key = Keys.relative_minor(key)
+		new_key = Keys.relative_minor(key)
 	for i in range(1, len(chords)-1):
 		if(chords[i] == 'bbbbbI'): continue
 		if random.random() > 0.5:
 			subs = Progressions.substitute([chords[i]], 0)
 			for j in range(0,5):	
 				sub = random.choice(subs)
-				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i], key):
+				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i], new_key):
 					chords[i] = sub
 					break
 
@@ -144,6 +138,8 @@ def export(melody_track, chords, key, time_sig, bpm, file):
 	if not os.path.exists(out_dir):
 		os.makedirs(out_dir)
 	mid = file.split('/')[-1]
+	if os.path.exists(out_dir+'/'+mid):
+		os.remove(out_dir+'/'+mid)
 	MidiFileOut.write_Composition(out_dir+'/'+mid, c, bpm)
 
 	file = out_dir + '/' + mid
@@ -159,6 +155,10 @@ def export(melody_track, chords, key, time_sig, bpm, file):
 		os.remove(file)
 
 def to_Sheet(bars, chords, track, key, mode, file, out_dir, title,author):
+	path = out_dir + '/' + file.split('.')[0]
+	file = file.split('/')[-1]
+	if os.path.exists(path + '.midi'):	
+		os.remove(path + '.midi')
 	track = LilyPond.from_Track(track)
 	track = track[1:-1]
 	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}
@@ -175,8 +175,6 @@ def to_Sheet(bars, chords, track, key, mode, file, out_dir, title,author):
   		\\midi { }\n 
 		}''' 
 
-	file = file.split('/')[-1]
-	path = out_dir + '/' + file.split('.')[0]
 	LilyPond.to_pdf(track, path)
 	if os.path.exists(path + '.midi'):	
 		os.remove(path + '.midi')
@@ -256,10 +254,10 @@ def score(sub, bar, key):
 				return True
 	return False
 
-def raise_fifth(chords, maj_key):
-	print chords
-	key = Keys.relative_minor(maj_key)
-	for chord in chords:
-		if chord == (Chords.dominant(key) or Chords.dominant7(key)):
-			chord[1] = Notes.reduce_accidentals(Notes.augment(chord[1]))
-	print chords
+# def raise_fifth(chords, maj_key):
+# 	print chords
+# 	key = Keys.relative_minor(maj_key)
+# 	for chord in chords:
+# 		if chord == (Chords.dominant(key) or Chords.dominant7(key)):
+# 			chord[1] = Notes.reduce_accidentals(Notes.augment(chord[1]))
+# 	print chords

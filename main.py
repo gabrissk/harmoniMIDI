@@ -128,20 +128,15 @@ def main(file, exp, sheet):
 	label4 = Label(root, textvariable = labelText)
 	canvas1.create_window(200, 160, window=label4)
 
-	update(pg)
+	update(pg, 0)
 
 	fluidsynth.init("Sounds/soundfont.sf2", "alsa")
 
-	button1 = Button(text='Ouvir resultado', command=lambda: play(tra, chords, bpm), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+	button1 = Button(text='Ouvir resultado', command=lambda: play(pg,tra, chords, bpm, scores, bars, key, mode, modeToPass, tra, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
 	canvas1.create_window(200, 200, window=button1)
 
-	# print chords
-	Harmonizer.reharmonize(chords, scores, bars, key, modeToPass)
-	# print chords
-	chords = progressions.to_chords(chords, key)
-
 	if exp: 
-		Harmonizer.export(tra, chords, key, (4,4), bpm, file)
+		Harmonizer.export(tra, progressions.to_chords(chords, key), key, (4,4), bpm, file)
 
 	if sheet:
 		# if len(sys.argv) > 3:
@@ -150,32 +145,54 @@ def main(file, exp, sheet):
 		# if len(sys.argv) > 4:
 		# 	author = sys.argv[4]
 		# if author == None: author = "Usuario"
-		Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, "Musica", "Eu")
+		Harmonizer.to_Sheet(bars, progressions.to_chords(chords, key), tra, key, mode, file, out_dir, "Musica", "Eu")
+	
+	# button = Button(text='Clique para harmonizar!', command=lambda: checkReharmonize(chords, scores, bars, key, modeToPass, tra, bpm, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+	# canvas1.create_window(200, 240, window=button)
+	
 
-def play(melody, chords, bpm):
+
+re = False		
+
+def play(pg,melody, chords, bpm, scores, bars, key,mode, modeToPass, tra, file, out_dir):
 	t2 = Track()
-	for i in range(0, len(chords)):
+	sh = progressions.to_chords(chords, key)	
+	for i in range(0, len(sh)):
 		b = Bar(None, (4,4))
 		if len(chords[i][0]) > 5:
 			b.place_notes(None, 1)
 		else:
-			b.place_notes(NoteContainer(chords[i]), 1)
+			b.place_notes(NoteContainer(sh[i]), 1)
 		t2 + b
 	fluidsynth.pan(1, 25)
 	fluidsynth.pan(2, 120)
 	fluidsynth.main_volume(2, 50)
 	fluidsynth.play_Tracks([melody, t2], [1,2], bpm)
 
+	sleep(500000)
+
+	button = Button(text='Clique para re-harmonizar!', command=lambda: checkReharmonize(pg,chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+	canvas1.create_window(200, 250, window=button)
+
+def checkReharmonize(pg, chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir):
+	process = 0
+	pg['value'] = 0
+	updt('')
+	update(pg, 0)
+	Harmonizer.reharmonize(chords, scores, bars, key, modeToPass)
+	chords = progressions.to_chords(chords, key)
+	file = "reharmonized_" + file
+	Harmonizer.export(tra, chords, key, (4,4), bpm, file)
+	Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, "Musica", "Eu")
 
 def sleep(n):
 	i = 0
 	while i < n:
 		i += 0.1
 
-def update(pg):
-	global process
-	process += 1
-	pg['value'] = process
+def update(pg, progress):
+	progress += 1
+	pg['value'] = progress
 	root.update()
 	if pg['value'] >= pg['maximum']:
 		updt("Sucesso!")
@@ -183,9 +200,8 @@ def update(pg):
 		return 
 	i = 0;
 	sleep(10000)
-	update(pg)
+	update(pg, progress)
 
-process = 0
 
 root= Tk()
 root.title('HarmoniMIDI')

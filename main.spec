@@ -1,13 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import os.path
-
 block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['/home/gabriel.morais/Documentos/Projetos/poc'],
-             binaries=[('/usr/lib/x86_64-linux-gnu/libfluidsynth.so.1', '.'), ('/usr/lib/x86_64-linux-gnu/libfluidsynth.so.1.5.2', '.')],
+             pathex=['/home/gabriel/Desktop/poc/poc'],
+             binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -17,10 +15,6 @@ a = Analysis(['main.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-
-
-ICON = 'icon.svg'
-
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
