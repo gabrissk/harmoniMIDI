@@ -38,16 +38,13 @@ def harmonize(bars, key, emit, time_sig, mode):
 		ch = 'vi'
 	### PARA CADA COMPASSO, ANALISAR NOTAS PARA DEFINIR A AFINIDADE COM CADA UM DOS 7 ACORDES DO CAMPO HARMONICO. ###
 	###	DEPOIS DECIDIR PARA QUAL ACORDE IR, LEVANDO EM CONTA O ACORDE ANTERIOR (CADEIA DE MARKOV) ###
-	# for bar in bars:
 	for i in range(0, len(bars)):
 		notes = []		
 		states = {'I':0, 'ii':0, 'iii':0, 'IV':0, 'V':0, 'vi':0, 'vii':0}
-		# for note in bars[i]:
 		head = 1.1
 		if bars[i][0][0] == None:
 			chords.append('bbbbbI')
 			continue
-			# prev = '-'
 		for j in range(0, len(bars[i])):
 			for state in states:
 				# Nota no primeiro tempo (sempre forte) tem mais peso
@@ -107,15 +104,20 @@ def checkTonic(states, sh):
 def reharmonize(chords, scores, bars, key, mode):
 	if mode == 'minor':
 		new_key = Keys.relative_minor(key)
-	for i in range(1, len(chords)-1):
+	for i in range(0, len(chords)):
 		if(chords[i] == 'bbbbbI'): continue
-		if random.random() > 0.5:
+		if random.random() > 0.2:
 			subs = Progressions.substitute([chords[i]], 0)
 			for j in range(0,5):	
 				sub = random.choice(subs)
-				if sub != chords[i-1] and sub != chords[i+1] and not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i], new_key):
-					chords[i] = sub
-					break
+				if not (sub.endswith('dim')) and not (sub.endswith('dim7')) and score(sub, bars[i], new_key):
+					if i == 0:
+						if sub == chords[i+1]: continue
+					if i == len(chords)-1:
+						if sub != chords[i-1]: continue
+					if sub != chords[i-1] and sub != chords[i+1]:
+						chords[i] = sub
+						break
 
 def export(melody_track, chords, key, time_sig, bpm, file):
 	i = Instrument()
@@ -253,11 +255,3 @@ def score(sub, bar, key):
 			if sub[3] == note:
 				return True
 	return False
-
-# def raise_fifth(chords, maj_key):
-# 	print chords
-# 	key = Keys.relative_minor(maj_key)
-# 	for chord in chords:
-# 		if chord == (Chords.dominant(key) or Chords.dominant7(key)):
-# 			chord[1] = Notes.reduce_accidentals(Notes.augment(chord[1]))
-# 	print chords
