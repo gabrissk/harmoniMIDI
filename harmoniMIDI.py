@@ -60,47 +60,73 @@ class HarmoniMIDI:
 
 		self.label3 = Label(self.root, text='Deseja exportar o resultado para WAV e/ou gerar partitura? Selecione as opcoes:', wraplength=300)
 		self.label3.config(font=('helvetica', 10))
-		self.canvas1.create_window(200, 150, window=self.label3)
+		self.canvas1.create_window(200, 155, window=self.label3)
 		self.w.append(self.label3)
 
 		self.CheckVar1 = IntVar()
 		self.CheckVar2 = IntVar()
-		self.c1 = Checkbutton(self.root, text = "Exportar WAV  ", variable = self.CheckVar1)#, \
-		self.canvas1.create_window(200, 190, window=self.c1)                 
-		self.c2 = Checkbutton(self.root, text = "Gerar partitura", variable = self.CheckVar2)#, \
-		self.canvas1.create_window(200, 210, window=self.c2) 
+		self.c1 = Checkbutton(self.root, text = "Exportar WAV  ", variable = self.CheckVar1)
+		self.canvas1.create_window(200, 195, window=self.c1)                 
+		self.c2 = Checkbutton(self.root, text = "Gerar partitura", variable = self.CheckVar2, command=lambda: self.getSheetInfo())
+		self.canvas1.create_window(200, 215, window=self.c2) 
 		self.w.append(self.c1)
 		self.w.append(self.c2)
 
+		self.sheetInfo = Label(self.root, text='Digite, opcionalmente, nome da obra e nome do autor:')
+		self.sheetAuthor = Entry(self.root, width=22)
+		self.sheetName = Entry(self.root, width=22)
+		self.w.append(self.sheetInfo)
+		self.w.append(self.sheetName)
+		self.w.append(self.sheetAuthor)
+
 		self.button1 = Button(text='HarmoniMIDI-me!', command=lambda: self.validate(), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
-		self.canvas1.create_window(200, 260, window=self.button1)
+		self.b = self.canvas1.create_window(200, 265, window=self.button1)
 		self.w.append(self.button1)
 
 		self.labelText = StringVar()
 		self.label4 = Label(self.root, textvariable = self.labelText)
-		self.canvas1.create_window(200, 290, window=self.label4) 
+		self.canvas1.create_window(200, 125, window=self.label4) 
 		self.w.append(self.label4)
 
+		self.name = ""
+		self.author = ""
+
 		self.root.mainloop()
+
+	def getSheetInfo(self):
+		if self.CheckVar2.get() == 1:
+			self.s = self.canvas1.create_window(200, 240, window=self.sheetInfo)
+			self.n = self.canvas1.create_window(100, 265, window=self.sheetName)
+			self.a = self.canvas1.create_window(300, 265, window=self.sheetAuthor)
+			self.canvas1.delete(self.b)
+			self.b = self.canvas1.create_window(200, 305, window=self.button1)
+		else:
+			self.canvas1.delete(self.s)
+			self.canvas1.delete(self.n)
+			self.canvas1.delete(self.a)
+			self.b = self.canvas1.create_window(200, 265, window=self.button1)
 
 	def updt(self, txt):
 			self.labelText.set(txt)
 
 	def validate(self):
 		if self.entry1.get() == (None or '') or self.entry1.get().strip == '':
-			updt('Caminho do arquivo .midi nao informado. Tente novamente.')
+			self.updt('Caminho do arquivo .midi nao informado. Tente novamente.')
 		elif not os.path.exists(self.entry1.get()):
-			updt('Arquivo .midi nao encontrado. Tente novamente.')
+			self.updt('Arquivo .midi nao encontrado. Tente novamente.')
 		else:
 			fileN = self.entry1.get()
 			self.init(fileN)
 
 
 	def init(self, fileN):
-		for wdg in self.w:
-			wdg.destroy()
 		self.exp = True if self.CheckVar1.get() == 1 else False
 		self.sheet = True if self.CheckVar2.get() == 1 else False
+		if self.sheet:
+			self.name = self.sheetName.get()
+			self.author = self.sheetAuthor.get()
+		for wdg in self.w:
+			wdg.destroy()
 		main(self, fileN)
 
 	def play(self,melody, chords, bpm, scores, bars, key,mode, modeToPass, tra, file, out_dir):
@@ -118,7 +144,7 @@ class HarmoniMIDI:
 		fluidsynth.main_volume(2, 50)
 		fluidsynth.play_Tracks([melody, t2], [1,2], bpm)
 
-		sleep(500000)
+		# sleep(500000)
 
 		button = Button(text='Clique para re-harmonizar!', command=lambda: self.checkReharmonize(chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
 		self.canvas1.create_window(200, 250, window=button)
@@ -134,7 +160,7 @@ class HarmoniMIDI:
 		if self.exp:
 			Harmonizer.export(tra, chords, key, (4,4), bpm, file)
 		if self.sheet:
-			Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, "Musica", "Eu")
+			Harmonizer.to_Sheet(bars, chords, tra, key, mode, file, out_dir, self.name, self.author)
 
 	def update(self, progress):
 		progress += 1
@@ -142,7 +168,7 @@ class HarmoniMIDI:
 		self.root.update()
 		if self.pg['value'] >= self.pg['maximum']:
 			self.updt("Sucesso!")
-			sleep(500000)
+			sleep(200000)
 			return 
 		sleep(10000)
 		self.update(progress)
@@ -261,7 +287,7 @@ def main(hMidi, file):
 		# if len(sys.argv) > 4:
 		# 	author = sys.argv[4]
 		# if author == None: author = "Usuario"
-		Harmonizer.to_Sheet(bars, progressions.to_chords(chords, key), tra, key, mode, file, out_dir, "Musica", "Eu")
+		Harmonizer.to_Sheet(bars, progressions.to_chords(chords, key), tra, key, mode, file, out_dir, hMidi.name, hMidi.author)
 
 
 
