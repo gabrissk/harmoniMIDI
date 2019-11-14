@@ -135,7 +135,7 @@ def export(melody_track, chords, key, time_sig, bpm, file):
 	c.add_track(melody_track)
 	c.add_track(t2)
 
-	out_dir = 'out/'
+	out_dir = 'out'
 
 	if not os.path.exists(out_dir):
 		os.makedirs(out_dir)
@@ -159,8 +159,6 @@ def export(melody_track, chords, key, time_sig, bpm, file):
 def to_Sheet(bars, chords, track, key, mode, file, out_dir, title,author):
 	path = out_dir + '/' + file.split('.')[0]
 	file = file.split('/')[-1]
-	if os.path.exists(path + '.midi'):	
-		os.remove(path + '.midi')
 	track = LilyPond.from_Track(track)
 	track = track[1:-1]
 	track = '\\header {title= "'+ title + '" composer = "' + author +  '"} \nmelody = {\n\\key ' + key.lower() + ' \\' + mode + '\n' + track + '''}

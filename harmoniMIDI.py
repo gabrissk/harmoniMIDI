@@ -276,20 +276,15 @@ def main(hMidi, file):
 
 	button1 = Button(text='Ouvir resultado', command=lambda: hMidi.play(tra, chords, bpm, scores, bars, key, mode, modeToPass, tra, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
 	hMidi.canvas1.create_window(200, 200, window=button1)
-
-	if hMidi.exp: 
+	if hMidi.exp:
+		if not os.path.exists(out_dir):
+			os.makedirs(out_dir)
 		Harmonizer.export(tra, progressions.to_chords(chords, key), key, (4,4), bpm, file)
 
 	if hMidi.sheet:
-		# if len(sys.argv) > 3:
-		# 	title = sys.argv[3]
-		# if title == None: title = "Musical piece"
-		# if len(sys.argv) > 4:
-		# 	author = sys.argv[4]
-		# if author == None: author = "Usuario"
+		if not os.path.exists(out_dir):
+			os.makedirs(out_dir)
 		Harmonizer.to_Sheet(bars, progressions.to_chords(chords, key), tra, key, mode, file, out_dir, hMidi.name, hMidi.author)
-
-
 
 def sleep(n):
 	i = 0
