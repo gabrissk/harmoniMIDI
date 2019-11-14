@@ -146,7 +146,7 @@ class HarmoniMIDI:
 
 		# sleep(500000)
 
-		button = Button(text='Clique para re-harmonizar!', command=lambda: self.checkReharmonize(chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+		button = Button(text='Clique para rearmonizar!', command=lambda: self.checkReharmonize(chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir), bg='brown', fg='white', font=('helvetica', 9, 'bold'))
 		self.canvas1.create_window(200, 250, window=button)
 		
 	def checkReharmonize(self, chords, scores, bars, key, mode, modeToPass, tra, bpm, file, out_dir):
